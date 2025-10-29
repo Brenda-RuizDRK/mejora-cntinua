@@ -1,0 +1,14 @@
+.bordeText {
+    -webkit-text-stroke-width: 1.1px;
+    -webkit-text-stroke-color: currentColor; /* Usa el mismo color del texto */
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 19px;
+    color: rgb(255, 255, 255);
+}
+
+.bordeText-fill {
+    -webkit-text-stroke-width: 1.1px;
+    -webkit-text-stroke-color: black; /* o cualquier color fijo */
+    color: white; /* color del relleno */
+}

@@ -1,12 +1,3 @@
 export default function ApplicationLogo(props) {
-    return (
-        <img
-            src="/img/vitracoatLogo.png"
-            alt=""
-            className=""
-            style={{
-                width: "6rem",
-            }}
-        />
-    );
+    return <img src="/img/vitracoatLogo.png" alt="" className="w-12 lg:w-24" />;
 }

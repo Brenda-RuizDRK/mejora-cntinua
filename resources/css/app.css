@@ -1,3 +1,123 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@theme {
+    --color-oregon-50: #fffdea;
+    --color-oregon-100: #fff6c5;
+    --color-oregon-200: #ffed85;
+    --color-oregon-300: #ffdd46;
+    --color-oregon-400: #ffcb1b;
+    --color-oregon-500: #ffa901;
+    --color-oregon-600: #e27f00;
+    --color-oregon-700: #bb5802;
+    --color-oregon-800: #904008;
+    --color-oregon-900: #7c380b;
+    --color-oregon-950: #481b00;
+
+    /* color azul */
+    --color-malibu-50: #f3f7fc;
+    --color-malibu-100: #e6f0f8;
+    --color-malibu-200: #c7dff0;
+    --color-malibu-300: #7eb8dd;
+    --color-malibu-400: #5da7d3;
+    --color-malibu-500: #398cbe;
+    --color-malibu-600: #2870a1;
+    --color-malibu-700: #225a82;
+    --color-malibu-800: #204d6c;
+    --color-malibu-900: #1f415b;
+    --color-malibu-950: #15293c;
+}
+
+h1 {
+    font-size: 1.8rem;
+    color: #481b00;
+    font-weight: bold;
+}
+h2 {
+    font-size: 1.4rem;
+    color: #904008;
+    font-weight: bold;
+}
+
+/* movil*/
+@media (max-width: 1250px) {
+    h1 {
+        font-size: 1.4rem;
+    }
+    h2 {
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.component {
+    padding: 0.5rem;
+    --tw-bg-opacity: 1;
+    background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+
+    --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+        0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color),
+        0 2px 4px -2px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+        var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    border-radius: 0.5rem;
+    margin: 0.5rem;
+}
+
+input {
+    border-radius: 2px;
+    border: 1px solid #ffcb1b; /* Asegúrate de incluir el ancho del borde */
+    padding: 6px 10px; /* Opcional, para que se vea mejor */
+    outline: none; /* Quita el borde azul de focus por defecto */
+    transition: 0.2s; /* Para suavizar cambios visuales */
+}
+
+input:focus {
+    border-color: #e27f00; /* Cambia color al hacer focus */
+    box-shadow: 0 0 5px rgba(255, 217, 1, 0.966); /* Efecto sutil */
+}
+
+strong {
+    color: #663205;
+    font-weight: bold;
+    font-size: 19px;
+}
+span {
+    color: #904008;
+    font-weight: bold;
+    font-size: 17px;
+}
+p {
+    font-size: 16px;
+}
+/* movil*/
+@media (max-width: 1250px) {
+    strong {
+        color: #663205;
+        font-weight: bold;
+        font-size: 15px;
+    }
+    span {
+        color: #904008;
+        font-weight: bold;
+        font-size: 15 px;
+    }
+    p {
+        font-size: 15px;
+    }
+}
+
+button {
+    background-color: #e27f00;
+    color: white;
+    font-weight: 600;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
