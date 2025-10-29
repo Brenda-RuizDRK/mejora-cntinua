@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { usePage } from "@inertiajs/react";
 import Proceso from "@/Components/Extrusores/Accones/Proceso";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Operaciones from "@/Components/Extrusores/Accones/Operaciones";
@@ -20,9 +21,9 @@ export default function ProcesoExtr54_2({ reporte }) {
     return (
         <AuthenticatedLayout>
             <div className="p-2">
-                <h2 className="text-[19px]">Acciones del proceso</h2>
+                <h2 className="">Acciones del proceso</h2>
 
-                <div className="flex justify-between mb-2 gap-1">
+                <div className="flex justify-between mb-1 lg:mb-5 gap-1">
                     <span className="">
                         {reporte.producto_nombre} ({reporte.producto_clave})
                     </span>

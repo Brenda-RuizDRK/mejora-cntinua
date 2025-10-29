@@ -88,6 +88,7 @@ public function storeAccion(Request $request)
         'no_formula' => 'nullable|string',
         'kilos' => 'nullable|numeric',
         'comentario' => 'nullable|string',
+        'operador' => 'nullable|string',
     ]);
 
     $accion = ReporteProcesoExtrudeAccion::create($request->all());
@@ -97,6 +98,28 @@ public function storeAccion(Request $request)
         'message' => 'Acción registrada correctamente.',
         'accion' => $accion
     ]);
+}
+
+
+public function cerrarAccion(Request $request, $id)
+{
+    try {
+        $accion = ReporteProcesoExtrudeAccion::findOrFail($id);
+
+        $accion->update([
+            'fecha_hora_final' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Acción finalizada correctamente.',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
 }
 
 

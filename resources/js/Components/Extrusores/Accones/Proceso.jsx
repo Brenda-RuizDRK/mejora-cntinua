@@ -35,7 +35,7 @@ export default function Proceso() {
     ];
 
     return (
-        <div>
+        <div className="mt-[0.2rem] lg:mt-6 p-2 ">
             <h2 className="font-bold mb-2">Línea de tiempo de procesos</h2>
 
             <div className="flex w-full">

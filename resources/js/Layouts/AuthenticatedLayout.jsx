@@ -1,5 +1,5 @@
 import { usePage } from "@inertiajs/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ApplicationLogo from "@/Components/ApplicationLogo";
 import Dropdown from "@/Components/Dropdown";
 import NavLink from "@/Components/NavLink";
@@ -10,7 +10,9 @@ import { FaRegUserCircle } from "react-icons/fa";
 export default function AuthenticatedLayout({ children }) {
     const { auth } = usePage().props;
 
-    console.log("👤 Usuario logueado:", auth?.user);
+    useEffect(() => {
+        console.log("👤 Usuario logueado:", auth?.user);
+    }, []); // ✅ solo una vez
 
     return (
         <>

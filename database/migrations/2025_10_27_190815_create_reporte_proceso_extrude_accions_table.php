@@ -16,11 +16,12 @@ return new class extends Migration
              $table->foreignId('reporte_proceso_id')->nullable()->constrained('reporte_proceso_extrudes')->nullOnDelete();
             $table->string('fecha_hora_inicio', 100)->nullable();
             $table->string('fecha_hora_final', 100)->nullable();
-            $table->string('accion', 100)->nullable();
+            $table->string('accion', 100)->nullable();    
             $table->string('paro', 100)->nullable();
             $table->string('no_formula', 100)->nullable();
             $table->string('kilos', 100)->nullable();
             $table->string('comentario', 100)->nullable();
+            $table->string('operador', 100)->nullable();
              $table->timestamps();
         });
     }

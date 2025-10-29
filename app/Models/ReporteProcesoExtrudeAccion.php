@@ -17,6 +17,7 @@ class ReporteProcesoExtrudeAccion extends Model
         'no_formula',
         'kilos',
         'comentario',
+        'operador',
     ];
     // Relación con el modelo ReporteProcesoExtrude
     public function reporteProcesoExtrude()

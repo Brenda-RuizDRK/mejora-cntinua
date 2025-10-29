@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
 
 
 Route::post('/reporte-proceso-extrude/accion', [ReporteProcesoExtrusionController::class, 'storeAccion']);
+Route::put('/reporte-proceso-extrude/accion/{id}/cerrar', [ReporteProcesoExtrusionController::class, 'cerrarAccion']);
 
 
 });
