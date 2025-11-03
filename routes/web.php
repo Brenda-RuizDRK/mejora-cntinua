@@ -16,7 +16,7 @@ Route::get('/', function () {
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
+  Route::get('/productos-etiqueta', [ReporteProcesoExtrusionController::class, 'productos']);
 // Rutas protegidas
 Route::middleware('auth')->group(function () {
     Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
@@ -25,7 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/extrusion/54_2', [ExtruisionController::class, 'view54_2'])->name('extrusion.view54_2');
 
     
-    Route::get('/productos-etiqueta', [ReporteProcesoExtrusionController::class, 'productos']);
+  
     Route::post('/reporte-proceso-extrude', [ReporteProcesoExtrusionController::class, 'store']);
 
  Route::get('/reporte-proceso-extrude/{id}/acciones', [ReporteProcesoExtrusionController::class, 'acciones'])
@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
 
 Route::post('/reporte-proceso-extrude/accion', [ReporteProcesoExtrusionController::class, 'storeAccion']);
 Route::put('/reporte-proceso-extrude/accion/{id}/cerrar', [ReporteProcesoExtrusionController::class, 'cerrarAccion']);
+Route::get('/reporte-proceso-extrude/{id}/acciones-json', [ReporteProcesoExtrusionController::class, 'obtenerAcciones']);
 
 
 });

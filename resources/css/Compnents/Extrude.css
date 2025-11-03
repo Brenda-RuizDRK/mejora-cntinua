@@ -12,3 +12,14 @@
     -webkit-text-stroke-color: black; /* o cualquier color fijo */
     color: white; /* color del relleno */
 }
+
+.paro {
+    background-image: url("../../../public/img/Acciones/paro.png");
+    background-size: cover;
+    background-position: center;
+}
+
+.contorno {
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: rgb(0, 0, 0);
+}

@@ -3,19 +3,19 @@ import { usePage } from "@inertiajs/react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "../../../../css/Compnents/Extrude.css";
-import ParosExtrucion from "@/database/Extrusion/Paros";
-import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-    List,
-    ListItem,
-    ListItemText,
-} from "@mui/material";
+import DialogFormula from "@/Components/Extrusores/Dialogs/DialogFormula";
+import DialogParo from "@/Components/Extrusores/Dialogs/DialogParo";
+import DialogSubParo from "@/Components/Extrusores/Dialogs/DialogSubParo";
+import Paro from "@/Components/Acciones/Paro";
+import { FaTools } from "react-icons/fa";
+import { FaDroplet } from "react-icons/fa6";
+import Extrusor from "@/Components/Acciones/Extrusor";
+import { IoIosTimer } from "react-icons/io";
+import { FaGears } from "react-icons/fa6";
+import { GiChemicalDrop } from "react-icons/gi";
+import { RiTestTubeFill } from "react-icons/ri";
 
-export default function Operaciones({ reporteId }) {
+export default function Operaciones({ reporteId, onFormulaChange }) {
     const { auth } = usePage().props;
     const operadorNombre = auth?.user?.nombre || "Desconocido";
 
@@ -26,6 +26,7 @@ export default function Operaciones({ reporteId }) {
             abreviatura: "PRE",
             color: "#145318",
             bgColor: "#BBF7BC",
+            icons: <Extrusor />,
         },
         {
             id: 2,
@@ -33,6 +34,7 @@ export default function Operaciones({ reporteId }) {
             abreviatura: "REPE",
             color: "#621679",
             bgColor: "#EBD3FF",
+            icons: <IoIosTimer className="text-[70px]" />,
         },
         {
             id: 3,
@@ -40,6 +42,7 @@ export default function Operaciones({ reporteId }) {
             abreviatura: "AP",
             color: "#714012",
             bgColor: "#E5D1A3",
+            icons: <FaGears className="text-[80px]" />,
         },
         {
             id: 4,
@@ -47,6 +50,7 @@ export default function Operaciones({ reporteId }) {
             abreviatura: "LIM",
             color: "#194061",
             bgColor: "#C3DFF4",
+            icons: <FaDroplet className="text-[70px]" />,
         },
         {
             id: 5,
@@ -54,6 +58,7 @@ export default function Operaciones({ reporteId }) {
             abreviatura: "FM",
             color: "#C98D05",
             bgColor: "#FEFAC3",
+            icons: <RiTestTubeFill className="text-[70px]" />,
         },
         {
             id: 6,
@@ -61,6 +66,7 @@ export default function Operaciones({ reporteId }) {
             abreviatura: "MAN",
             color: "#CC4902",
             bgColor: "#FFC26D",
+            icons: <FaTools className="text-[70px]" />,
         },
         {
             id: 7,
@@ -68,6 +74,7 @@ export default function Operaciones({ reporteId }) {
             abreviatura: "PARO",
             color: "#D70000",
             bgColor: "#FF9494",
+            icons: <Paro />,
         },
         {
             id: 8,
@@ -75,112 +82,155 @@ export default function Operaciones({ reporteId }) {
             abreviatura: "MUE",
             color: "#A70D45",
             bgColor: "#FECCE6",
+            icons: <GiChemicalDrop className="text-[70px]" />,
         },
     ];
 
-    const [accionesActivas, setAccionesActivas] = useState({});
+    const [accionActiva, setAccionActiva] = useState(null);
+    const [accionId, setAccionId] = useState(null);
     const [openParoDialog, setOpenParoDialog] = useState(false);
+    const [openSubParoDialog, setOpenSubParoDialog] = useState(false);
+    const [subParos, setSubParos] = useState([]);
+    const [openFormulaDialog, setOpenFormulaDialog] = useState(false);
+    const [numeroFormula, setNumeroFormula] = useState("");
+    const [accionSeleccionada, setAccionSeleccionada] = useState(null);
 
-    // ✅ Restaurar acciones guardadas en localStorage
+    // 🔹 Cargar acción guardada
     useEffect(() => {
-        const guardadas = localStorage.getItem(`accionesActivas_${reporteId}`);
-        if (guardadas) setAccionesActivas(JSON.parse(guardadas));
+        const guardada = localStorage.getItem(`accionActiva_${reporteId}`);
+        if (guardada) {
+            const { nombre, id } = JSON.parse(guardada);
+            setAccionActiva(nombre);
+            setAccionId(id);
+        }
     }, [reporteId]);
 
-    // ✅ Guardar cada cambio
+    // 🔹 Guardar en localStorage
     useEffect(() => {
-        localStorage.setItem(
-            `accionesActivas_${reporteId}`,
-            JSON.stringify(accionesActivas)
-        );
-    }, [accionesActivas, reporteId]);
-
-    const registrarAccion = async (accion, paroSeleccionado = null) => {
-        const idActiva = accionesActivas[accion.name];
-
-        if (!idActiva) {
-            try {
-                const ahora = new Date();
-                const fechaHoraLocal = new Date(
-                    ahora.getTime() - ahora.getTimezoneOffset() * 60000
-                )
-                    .toISOString()
-                    .slice(0, 19)
-                    .replace("T", " ");
-
-                const payload = {
-                    reporte_proceso_id: reporteId,
-                    fecha_hora_inicio: fechaHoraLocal,
-                    fecha_hora_final: null,
-                    accion: accion.name,
-                    operador: operadorNombre,
-                };
-
-                if (paroSeleccionado) {
-                    payload.tipo_paro = paroSeleccionado.description;
-                    payload.numero_paro = paroSeleccionado.num;
-                }
-
-                const res = await axios.post(
-                    "/reporte-proceso-extrude/accion",
-                    payload
-                );
-
-                setAccionesActivas((prev) => ({
-                    ...prev,
-                    [accion.name]: res.data.accion.id,
-                }));
-
-                toast.success(
-                    `✅ ${accion.name} ${
-                        paroSeleccionado
-                            ? `(${paroSeleccionado.description})`
-                            : ""
-                    } iniciada por ${operadorNombre}`,
-                    { position: "top-right" }
-                );
-            } catch (error) {
-                console.error("Error al guardar acción:", error);
-                toast.error("❌ Error al registrar la acción.");
-            }
+        if (accionActiva && accionId) {
+            localStorage.setItem(
+                `accionActiva_${reporteId}`,
+                JSON.stringify({ nombre: accionActiva, id: accionId })
+            );
         } else {
-            try {
+            localStorage.removeItem(`accionActiva_${reporteId}`);
+        }
+    }, [accionActiva, accionId, reporteId]);
+
+    // 🔹 Registrar acción (cerrar actual si hay una en curso)
+    const registrarAccion = async (
+        accion,
+        paroSeleccionado = null,
+        numFormula = null
+    ) => {
+        try {
+            // Cierra acción anterior si es distinta
+            if (accionActiva && accionActiva !== accion.name && accionId) {
                 await axios.put(
-                    `/reporte-proceso-extrude/accion/${idActiva}/cerrar`
+                    `/reporte-proceso-extrude/accion/${accionId}/cerrar`
                 );
-                setAccionesActivas((prev) => {
-                    const copia = { ...prev };
-                    delete copia[accion.name];
-                    return copia;
-                });
-                toast.info(`🕓 ${accion.name} finalizada.`);
-            } catch (error) {
-                console.error("Error al cerrar acción:", error);
-                toast.error("❌ Error al finalizar la acción.");
+                toast.info(`🕓 ${accionActiva} finalizada.`);
             }
+
+            // Si se vuelve a seleccionar la misma, se finaliza
+            if (accionActiva === accion.name) {
+                await axios.put(
+                    `/reporte-proceso-extrude/accion/${accionId}/cerrar`
+                );
+                setAccionActiva(null);
+                setAccionId(null);
+                toast.info(`🕓 ${accion.name} finalizada.`);
+                return;
+            }
+
+            // Registrar nueva acción
+            const ahora = new Date();
+            const fechaHoraLocal = new Date(
+                ahora.getTime() - ahora.getTimezoneOffset() * 60000
+            )
+                .toISOString()
+                .slice(0, 19)
+                .replace("T", " ");
+
+            const payload = {
+                reporte_proceso_id: reporteId,
+                fecha_hora_inicio: fechaHoraLocal,
+                fecha_hora_final: null,
+                accion: accion.name,
+                operador: operadorNombre,
+                numero_formula: numFormula,
+                no_formula: numFormula, // ✅ almacena la fórmula también aquí
+            };
+
+            if (accion.name === "Paro" && paroSeleccionado) {
+                payload.paro = `${paroSeleccionado.num} - ${paroSeleccionado.description}`;
+            }
+
+            const res = await axios.post(
+                "/reporte-proceso-extrude/accion",
+                payload
+            );
+
+            // 🔹 Actualiza el estado local
+            setAccionActiva(accion.name);
+            setAccionId(res.data.accion.id);
+
+            // 🔹 Notifica al padre el número de fórmula actual
+            if (numFormula && onFormulaChange) {
+                onFormulaChange(numFormula);
+            }
+
+            toast.success(
+                `✅ ${accion.name} ${
+                    paroSeleccionado ? `(${paroSeleccionado.description})` : ""
+                } iniciada por ${operadorNombre}`
+            );
+        } catch (error) {
+            console.error("Error al registrar acción:", error);
+            toast.error("❌ Error al registrar la acción.");
         }
     };
 
-    // ✅ Manejadores del diálogo de Paros
-    const handleOpenParoDialog = () => setOpenParoDialog(true);
-    const handleCloseParoDialog = () => setOpenParoDialog(false);
-
+    // 🟢 Manejadores de los diálogos
     const handleSelectParo = (paro) => {
-        registrarAccion({ name: "Paro" }, paro);
-        handleCloseParoDialog();
+        if (paro.id === "4" && paro.tipo_paro) {
+            setSubParos(paro.tipo_paro);
+            setOpenSubParoDialog(true);
+        } else {
+            registrarAccion({ name: "Paro" }, paro);
+            setOpenParoDialog(false);
+        }
+    };
+
+    const handleSelectSubParo = (subParo) => {
+        registrarAccion({ name: "Paro" }, subParo);
+        setOpenSubParoDialog(false);
+        setOpenParoDialog(false);
+    };
+
+    const handleConfirmFormula = () => {
+        if (!numeroFormula.trim()) {
+            toast.warn("⚠️ Ingresa un número de fórmula antes de continuar.");
+            return;
+        }
+        if (accionSeleccionada)
+            registrarAccion(accionSeleccionada, null, numeroFormula);
+        setOpenFormulaDialog(false);
     };
 
     return (
         <div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {/* 🔘 Botones de acciones */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
                 {operacionesIniciales.map((operacion) => {
-                    const activa = !!accionesActivas[operacion.name];
+                    const esActiva = accionActiva === operacion.name;
+                    const hayActiva = !!accionActiva;
 
                     const handleClick = () => {
-                        if (operacion.name === "Paro") {
-                            handleOpenParoDialog();
-                        } else {
-                            registrarAccion(operacion);
+                        if (operacion.name === "Paro") setOpenParoDialog(true);
+                        else {
+                            setAccionSeleccionada(operacion);
+                            setOpenFormulaDialog(true);
                         }
                     };
 
@@ -188,83 +238,64 @@ export default function Operaciones({ reporteId }) {
                         <div
                             key={operacion.id}
                             onClick={handleClick}
-                            className={`cursor-pointer p-[0.5rem] text-center rounded-2xl shadow-md font-semibold flex gap-1 justify-around items-center transition-transform transform hover:scale-105 ${
-                                activa ? "opacity-60" : ""
+                            className={`relative cursor-pointer rounded-2xl shadow-md overflow-hidden transition-transform transform hover:scale-105 ${
+                                esActiva ? "ring-4 ring-green-700" : ""
                             }`}
                             style={{
-                                backgroundColor: activa
-                                    ? "#d1d5db"
+                                backgroundColor: hayActiva
+                                    ? esActiva
+                                        ? operacion.bgColor
+                                        : "#d1d5db"
                                     : operacion.bgColor,
-                                color: activa ? "#555" : operacion.color,
+                                color: hayActiva
+                                    ? esActiva
+                                        ? operacion.color
+                                        : "#555"
+                                    : operacion.color,
                             }}
                         >
-                            <div
-                                className="text-2xl font-extrabold bordeText"
-                                style={{
-                                    WebkitTextStrokeColor: operacion.color,
-                                }}
-                            >
-                                {operacion.abreviatura}
+                            {/* Ícono de fondo translúcido */}
+                            <div className="absolute inset-0 flex items-center justify-start opacity-40 pl-0  left-[-8%]">
+                                <div>{operacion.icons}</div>
                             </div>
-                            <div className="text-[15px] lg:text-base">
-                                {operacion.name}
+
+                            {/* Contenido principal */}
+                            <div className="relative flex items-center justify-between px-2 py-2">
+                                <div className="text-[33px] font-extrabold tracking-wide contorno text-[#f2f9fd] ">
+                                    {operacion.abreviatura}
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-[18px] font-bold leading-tight">
+                                        {operacion.name.toUpperCase()}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     );
                 })}
             </div>
 
-            {/* 🟢 Diálogo de Paros */}
-            <Dialog
-                open={openParoDialog}
-                onClose={handleCloseParoDialog}
-                fullWidth
-                maxWidth="sm"
-            >
-                <DialogTitle className="h-1">
-                    Selecciona el tipo de paro
-                </DialogTitle>
-                <DialogContent dividers>
-                    <div className="flex flex-wrap gap-2 items-center justify-between w-full">
-                        {ParosExtrucion.map((paro, index) => (
-                            <div key={paro.id}>
-                                <button
-                                    onClick={() => handleSelectParo(paro)}
-                                    className={`cursor-pointer p-3 text-center rounded-2xl shadow-md font-semibold flex gap-1 justify-between items-center transition-transform transform hover:scale-105 ${
-                                        index % 2 === 0
-                                            ? "bg-[#ffc3c3] text-[#a90b0b]"
-                                            : "bg-[#ff5757] text-[#500000]"
-                                    }`}
-                                >
-                                    {`${paro.num} `}
-                                </button>
+            {/* Diálogos */}
+            <DialogFormula
+                open={openFormulaDialog}
+                numeroFormula={numeroFormula}
+                setNumeroFormula={setNumeroFormula}
+                onClose={() => setOpenFormulaDialog(false)}
+                onConfirm={handleConfirmFormula}
+            />
 
-                                {/* Subtipos */}
-                                {paro.tipo_paro && (
-                                    <div className="ml-6">
-                                        {paro.tipo_paro.map((sub) => (
-                                            <ListItem
-                                                key={sub.id}
-                                                button
-                                                onClick={() =>
-                                                    handleSelectParo(sub)
-                                                }
-                                            >
-                                                <ListItemText
-                                                    primary={`↳ ${sub.num} - ${sub.description}`}
-                                                />
-                                            </ListItem>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </DialogContent>
-                <DialogActions className="h-[35px]">
-                    <Button onClick={handleCloseParoDialog}>Cerrar</Button>
-                </DialogActions>
-            </Dialog>
+            <DialogParo
+                open={openParoDialog}
+                onClose={() => setOpenParoDialog(false)}
+                onSelectParo={handleSelectParo}
+            />
+
+            <DialogSubParo
+                open={openSubParoDialog}
+                subParos={subParos}
+                onClose={() => setOpenSubParoDialog(false)}
+                onSelectSubParo={handleSelectSubParo}
+            />
         </div>
     );
 }

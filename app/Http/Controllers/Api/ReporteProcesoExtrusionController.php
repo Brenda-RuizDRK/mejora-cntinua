@@ -122,5 +122,31 @@ public function cerrarAccion(Request $request, $id)
     }
 }
 
+public function obtenerAcciones($reporteId)
+{
+    try {
+        $acciones = ReporteProcesoExtrudeAccion::where('reporte_proceso_id', $reporteId)
+            ->orderBy('fecha_hora_inicio', 'asc')
+            ->get([
+                'id',
+                'accion',
+                'fecha_hora_inicio',
+                'fecha_hora_final',
+                'operador',
+                'paro',
+                'no_formula'
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'acciones' => $acciones
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
 
 }
