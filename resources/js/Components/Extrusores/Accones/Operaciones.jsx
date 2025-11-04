@@ -238,7 +238,7 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
                         <div
                             key={operacion.id}
                             onClick={handleClick}
-                            className={`relative cursor-pointer rounded-2xl shadow-md overflow-hidden transition-transform transform hover:scale-105 ${
+                            className={`relative cursor-pointer rounded-2xl shadow-md overflow-hidden transition-transform transform hover:scale-105 w-[200px] ${
                                 esActiva ? "ring-4 ring-green-700" : ""
                             }`}
                             style={{
@@ -255,19 +255,17 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
                             }}
                         >
                             {/* Ícono de fondo translúcido */}
-                            <div className="absolute inset-0 flex items-center justify-start opacity-40 pl-0  left-[-8%]">
+                            <div className="absolute inset-0 flex items-center justify-start opacity-40 pl-0 left-[-8%]">
                                 <div>{operacion.icons}</div>
                             </div>
 
                             {/* Contenido principal */}
-                            <div className="relative flex items-center justify-between px-2 py-2">
-                                <div className="text-[33px] font-extrabold tracking-wide  text-[#f2f9fd] ">
+                            <div className="relative flex flex-col sm:flex-row items-center sm:justify-between text-center sm:text-left px-2 py-2">
+                                <div className="text-[30px] sm:text-[33px] lg:text-[40px] font-extrabold tracking-wide contorno text-[#f2f9fd] leading-tight">
                                     {operacion.abreviatura}
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-[18px] font-bold leading-tight">
-                                        {operacion.name.toUpperCase()}
-                                    </div>
+                                <div className="text-[16px] sm:text-[18px] font-bold leading-tight mt-1 sm:mt-0">
+                                    {operacion.name.toUpperCase()}
                                 </div>
                             </div>
                         </div>
