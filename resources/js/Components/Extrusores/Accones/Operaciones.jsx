@@ -261,7 +261,7 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
 
                             {/* Contenido principal */}
                             <div className="relative flex items-center justify-between px-2 py-2">
-                                <div className="text-[33px] font-extrabold tracking-wide contorno text-[#f2f9fd] ">
+                                <div className="text-[33px] font-extrabold tracking-wide  text-[#f2f9fd] ">
                                     {operacion.abreviatura}
                                 </div>
                                 <div className="text-right">
