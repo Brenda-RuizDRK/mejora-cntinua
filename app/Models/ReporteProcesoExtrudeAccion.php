@@ -10,8 +10,10 @@ class ReporteProcesoExtrudeAccion extends Model
 {
     protected $fillable = [
         'reporte_proceso_id',
-        'fecha_hora_inicio',
-        'fecha_hora_final',
+        'fecha_inicio',
+        'hora_inicio',
+        'fecha_final',
+        'hora_final',
         'accion',
         'paro',
         'no_formula',

@@ -143,23 +143,35 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
                 return;
             }
 
-            // Registrar nueva acción
             const ahora = new Date();
-            const fechaHoraLocal = new Date(
-                ahora.getTime() - ahora.getTimezoneOffset() * 60000
-            )
-                .toISOString()
-                .slice(0, 19)
-                .replace("T", " ");
+
+            // 🗓️ Obtener fecha en formato dd/mm/yyyy
+            const fecha_inicio = ahora
+                .toLocaleDateString("es-MX", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                })
+                .replace(/\//g, "/"); // mantiene el formato dd/mm/yyyy
+
+            // ⏰ Obtener hora en formato hh:mm:ss
+            const hora_inicio = ahora.toLocaleTimeString("es-MX", {
+                hour12: false,
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+            });
 
             const payload = {
                 reporte_proceso_id: reporteId,
-                fecha_hora_inicio: fechaHoraLocal,
-                fecha_hora_final: null,
+                fecha_inicio, // ✅ solo la fecha
+                hora_inicio, // ✅ solo la hora
+                fecha_final: null,
+                hora_final: null,
                 accion: accion.name,
                 operador: operadorNombre,
                 numero_formula: numFormula,
-                no_formula: numFormula, // ✅ almacena la fórmula también aquí
+                no_formula: numFormula,
             };
 
             if (accion.name === "Paro" && paroSeleccionado) {
@@ -221,7 +233,7 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
     return (
         <div>
             {/* 🔘 Botones de acciones */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
                 {operacionesIniciales.map((operacion) => {
                     const esActiva = accionActiva === operacion.name;
                     const hayActiva = !!accionActiva;
