@@ -53,6 +53,9 @@ export default function ProcesoExtr54_2({ reporte }) {
                                 : "Sin fórmula activa"}
                         </p>
                     </div>
+                    <div>
+                        <p> {reporte.formulas_totales} red</p>
+                    </div>
                 </div>
 
                 <Operaciones

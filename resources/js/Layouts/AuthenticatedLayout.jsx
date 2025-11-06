@@ -44,6 +44,17 @@ export default function AuthenticatedLayout({ children }) {
                                     >
                                         Tiempos Extruson
                                     </NavLink>
+                                    <NavLink
+                                        href={route(
+                                            "reporte.extrude.historial"
+                                        )}
+                                        active={route().current(
+                                            "reporte.extrude.historial"
+                                        )}
+                                        className="text-black"
+                                    >
+                                        Historial
+                                    </NavLink>
 
                                     <Dropdown>
                                         <Dropdown.Trigger>

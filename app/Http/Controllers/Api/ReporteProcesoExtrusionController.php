@@ -166,4 +166,33 @@ class ReporteProcesoExtrusionController extends Controller
             ], 500);
         }
     }
+
+public function indexAcciones()
+{
+    try {
+        $acciones = ReporteProcesoExtrudeAccion::with('reporteProcesoExtrude:id,orden,lote,maquina')
+            ->orderBy('id', 'desc')
+            ->get([
+                'id',
+                'reporte_proceso_id',
+                'accion',
+                'fecha_inicio',
+                'hora_inicio',
+                'fecha_final',
+                'hora_final',
+                'operador',
+                'paro',
+                'no_formula',
+            ]);
+
+        return inertia('Extrusion/Historial/Reguistro', [
+            'acciones' => $acciones,
+        ]);
+    } catch (\Exception $e) {
+        return back()->withErrors(['error' => $e->getMessage()]);
+    }
+}
+
+
+
 }
