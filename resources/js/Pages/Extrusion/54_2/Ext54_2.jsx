@@ -4,8 +4,7 @@ import { Head } from "@inertiajs/react";
 import { Link } from "@inertiajs/react";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 import Info from "@/Components/Extrusores/InfoProducto/Info";
-import Operaciones from "@/Components/Extrusores/Accones/Operaciones";
-import Proceso from "@/Components/Extrusores/Accones/Proceso";
+import Card from "@/Components/Extrusores/Card/Card";
 
 export default function Ext54_2() {
     return (
@@ -16,6 +15,7 @@ export default function Ext54_2() {
                 <div className="flex justify-center">
                     <h1>Ext54 II</h1>
                 </div>
+                <Card />
                 <Info maquina="EXT54-II" /> {/* Pasamos la prop */}
             </div>
         </AuthenticatedLayout>

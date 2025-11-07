@@ -18,6 +18,7 @@ class ReporteProcesoExtrude extends Model
         'kg_formula',
         'nombre_operador',
         'nom_supervisor',
+           'status'
     ];
 
     // Relación con el modelo EtiquetaProduccion

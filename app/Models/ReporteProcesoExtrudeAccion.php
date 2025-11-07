@@ -20,6 +20,7 @@ class ReporteProcesoExtrudeAccion extends Model
         'kilos',
         'comentario',
         'operador',
+        'status'
     ];
     // Relación con el modelo ReporteProcesoExtrude
    public function reporteProcesoExtrude()

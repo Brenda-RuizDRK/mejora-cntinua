@@ -193,6 +193,38 @@ public function indexAcciones()
     }
 }
 
+public function productosEXT54()
+{
+    try {
+        $reportes = ReporteProcesoExtrude::with([
+            'etiquetaProduccion.producto2:id,nombre,clave',
+            'acciones' => function ($query) {
+                $query->latest('id')->limit(1); // solo la última acción
+            }
+        ])
+            ->where('maquina', 'EXT54')
+            ->get()
+            ->map(function ($reporte) {
+                $ultimaAccion = $reporte->acciones->first();
+                return [
+                    'id' => $reporte->id,
+                    'nombre' => $reporte->etiquetaProduccion->producto2->nombre ?? 'Sin nombre',
+                    'clave' => $reporte->etiquetaProduccion->producto2->clave ?? 'Sin clave',
+                    'formula' => $ultimaAccion->no_formula ?? 'Sin fórmula',
+                    'fecha' => $reporte->fecha,
+                ];
+            });
+
+        return response()->json($reportes);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
 
 
 }
