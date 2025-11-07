@@ -212,7 +212,8 @@ public function productosEXT54()
                 $query->latest('id')->limit(1); // solo la última acción
             }
         ])
-            ->where('maquina', 'EXT54')
+            ->where('maquina', 'EXT54-II') // ✅ usa el nombre correcto de la máquina
+            ->where('status', 'Activo')     // ✅ solo productos activos
             ->get()
             ->map(function ($reporte) {
                 $ultimaAccion = $reporte->acciones->first();
@@ -233,8 +234,23 @@ public function productosEXT54()
         ], 500);
     }
 }
+public function finalizarProceso($id)
+{
+    try {
+        $reporte = ReporteProcesoExtrude::findOrFail($id);
+        $reporte->update(['status' => 'Desactivado']);
 
-
+        return response()->json([
+            'success' => true,
+            'message' => 'El proceso ha sido finalizado correctamente.',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
 
 
 }

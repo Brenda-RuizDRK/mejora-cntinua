@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { GiPowder } from "react-icons/gi";
 import axios from "axios";
+import { router } from "@inertiajs/react"; // 👈 importa router de Inertia
 
 export default function Card() {
     const [productos, setProductos] = useState([]);
@@ -8,7 +9,7 @@ export default function Card() {
     useEffect(() => {
         const fetchProductos = async () => {
             try {
-                const res = await axios.get("/api/productos-ext54");
+                const res = await axios.get("/productos-ext54");
                 setProductos(res.data);
             } catch (error) {
                 console.error("Error al obtener productos:", error);
@@ -16,6 +17,11 @@ export default function Card() {
         };
         fetchProductos();
     }, []);
+
+    // 👇 función para redirigir
+    const handleClick = (id) => {
+        router.visit(`/reporte-proceso-extrude/${id}/acciones`);
+    };
 
     return (
         <div className="flex flex-wrap justify-center gap-4 p-4">
@@ -27,7 +33,8 @@ export default function Card() {
                 productos.map((producto) => (
                     <div
                         key={producto.id}
-                        className="border inline-block p-3 rounded-2xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-amber-400 w-64"
+                        onClick={() => handleClick(producto.id)} // 👈 click redirige
+                        className="border inline-block p-3 rounded-2xl bg-white shadow-md hover:shadow-lg transition-transform duration-300 border-l-4 border-amber-400 w-64 cursor-pointer hover:-translate-y-1"
                     >
                         <div className="flex items-center gap-2 mb-2">
                             <GiPowder className="text-amber-800 text-xl" />

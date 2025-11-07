@@ -39,6 +39,7 @@ Route::get('/reporte-proceso-extrude/{id}/acciones-json', [ReporteProcesoExtrusi
 Route::get('/reporte-proceso-extrude/historial', [ReporteProcesoExtrusionController::class, 'indexAcciones'])
     ->name('reporte.extrude.historial');
 Route::get('/productos-ext54', [ReporteProcesoExtrusionController::class, 'productosEXT54']);
+Route::put('/reporte-proceso-extrude/{id}/finalizar', [ReporteProcesoExtrusionController::class, 'finalizarProceso']);
 
 });
 

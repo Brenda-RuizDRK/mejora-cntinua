@@ -14,6 +14,7 @@ import { IoIosTimer } from "react-icons/io";
 import { FaGears } from "react-icons/fa6";
 import { GiChemicalDrop } from "react-icons/gi";
 import { RiTestTubeFill } from "react-icons/ri";
+import { Button } from "@mui/material"; // o usa tu propio estilo
 
 export default function Operaciones({ reporteId, onFormulaChange }) {
     const { auth } = usePage().props;
@@ -307,6 +308,40 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
                 onClose={() => setOpenSubParoDialog(false)}
                 onSelectSubParo={handleSelectSubParo}
             />
+            {/* 🟣 Botón para finalizar el proceso */}
+            <div className="mt-6 flex justify-center">
+                <button
+                    onClick={async () => {
+                        try {
+                            const confirm = window.confirm(
+                                "¿Seguro que deseas finalizar este proceso? Esto lo marcará como Desactivado."
+                            );
+                            if (!confirm) return;
+
+                            const res = await axios.put(
+                                `/reporte-proceso-extrude/${reporteId}/finalizar`
+                            );
+
+                            if (res.data.success) {
+                                toast.success(
+                                    "✅ Proceso finalizado correctamente"
+                                );
+                                window.location.href = "/"; // redirige al inicio o donde quieras
+                            } else {
+                                toast.error(
+                                    "⚠️ No se pudo finalizar el proceso"
+                                );
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            toast.error("❌ Error al finalizar el proceso");
+                        }
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition"
+                >
+                    Ha terminado el proceso
+                </button>
+            </div>
         </div>
     );
 }

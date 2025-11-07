@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\EtiquetaProduccion;
+use App\Models\ReporteProcesoExtrudeAccion;
 
 class ReporteProcesoExtrude extends Model
 {
@@ -25,5 +26,9 @@ class ReporteProcesoExtrude extends Model
     public function etiquetaProduccion()
     {
         return $this->belongsTo(EtiquetaProduccion::class, 'producto_etiqueta_id');
+    }
+    public function acciones()
+    {
+        return $this->hasMany(\App\Models\ReporteProcesoExtrudeAccion::class, 'reporte_proceso_id');
     }
 }
