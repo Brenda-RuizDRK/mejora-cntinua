@@ -172,6 +172,7 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
                 operador: operadorNombre,
                 numero_formula: numFormula,
                 no_formula: numFormula,
+                status: "Activado",
             };
 
             if (accion.name === "Paro" && paroSeleccionado) {

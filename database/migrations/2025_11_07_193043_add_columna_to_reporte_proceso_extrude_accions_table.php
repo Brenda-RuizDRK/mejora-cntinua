@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('reporte_proceso_extrudes', function (Blueprint $table) {
-              $table->string('status', 100)->nullable();
+        Schema::table('reporte_proceso_extrude_accions', function (Blueprint $table) {
+                $table->string('status', 100)->nullable();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('reporte_proceso_extrudes', function (Blueprint $table) {
-             $table->dropColumn('status');
+        Schema::table('reporte_proceso_extrude_accions', function (Blueprint $table) {
+                $table->dropColumn('status');
         });
     }
 };
