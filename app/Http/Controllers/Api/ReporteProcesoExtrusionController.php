@@ -221,8 +221,8 @@ public function productosEXT54()
                 $query->latest('id')->limit(1); // solo la última acción
             }
         ])
-            ->where('maquina', 'EXT54-II') // ✅ usa el nombre correcto de la máquina
-            ->where('status', 'Activo')     // ✅ solo productos activos
+            ->where('maquina', 'EXT54-II')
+            ->where('status', 'Activo')
             ->get()
             ->map(function ($reporte) {
                 $ultimaAccion = $reporte->acciones->first();
@@ -231,6 +231,7 @@ public function productosEXT54()
                     'nombre' => $reporte->etiquetaProduccion->producto2->nombre ?? 'Sin nombre',
                     'clave' => $reporte->etiquetaProduccion->producto2->clave ?? 'Sin clave',
                     'formula' => $ultimaAccion->no_formula ?? 'Sin fórmula',
+                    'accion' => $ultimaAccion->accion ?? 'Sin acción', // 👈 agregado
                     'fecha' => $reporte->fecha,
                 ];
             });
@@ -243,6 +244,7 @@ public function productosEXT54()
         ], 500);
     }
 }
+
 public function finalizarProceso($id)
 {
     try {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { GiPowder } from "react-icons/gi";
 import axios from "axios";
 import { router } from "@inertiajs/react"; // 👈 importa router de Inertia
+import { FcSurvey } from "react-icons/fc";
 
 export default function Card() {
     const [productos, setProductos] = useState([]);
@@ -24,7 +25,8 @@ export default function Card() {
     };
 
     return (
-        <div className="flex flex-wrap justify-center gap-4 p-4">
+        <div className="flex flex-col items-center ">
+            {/*   <p className="font-bold text-yellow-700">Formula Activa</p> */}
             {productos.length === 0 ? (
                 <p className="text-gray-500">
                     No hay productos activos en EXT54
@@ -34,26 +36,29 @@ export default function Card() {
                     <div
                         key={producto.id}
                         onClick={() => handleClick(producto.id)} // 👈 click redirige
-                        className="border inline-block p-3 rounded-2xl bg-white shadow-md hover:shadow-lg transition-transform duration-300 border-l-4 border-amber-400 w-64 cursor-pointer hover:-translate-y-1"
+                        className="border inline-block p-3 rounded-2xl bg-white shadow-md hover:shadow-lg transition-transform duration-300 border-l-4 border-amber-400 w-[300px] cursor-pointer hover:-translate-y-1"
                     >
-                        <div className="flex items-center gap-2 mb-2">
-                            <GiPowder className="text-amber-800 text-xl" />
-                            <p className="font-bold text-gray-700">
-                                {producto.nombre}
+                        <div className="flex justify-between">
+                            <div className="flex gap-2">
+                                <GiPowder className="text-amber-800 text-xl" />
+                                <span className="font-semibold">
+                                    {producto.clave}
+                                </span>
+                            </div>
+
+                            <p>
+                                <span className="font-semibold">Fórmula:</span>{" "}
+                                {producto.formula}
                             </p>
                         </div>
-                        <p>
-                            <span className="font-semibold">Clave:</span>{" "}
-                            {producto.clave}
+
+                        <p className="font-bold text-gray-700">
+                            {producto.nombre}
                         </p>
-                        <p>
-                            <span className="font-semibold">Fórmula:</span>{" "}
-                            {producto.formula}
-                        </p>
-                        <p>
-                            <span className="font-semibold">Fecha:</span>{" "}
-                            {producto.fecha}
-                        </p>
+
+                        <span className="ml-2  font-bold text-yellow-700 bg-yellow-200 px-2 py-1 rounded flex items-center w-[50%] gap-1">
+                            <FcSurvey /> {producto.accion}
+                        </span>
                     </div>
                 ))
             )}
