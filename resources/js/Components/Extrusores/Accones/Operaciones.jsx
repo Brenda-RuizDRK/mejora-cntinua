@@ -235,7 +235,7 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
     return (
         <div>
             {/* 🔘 Botones de acciones */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 ">
                 {operacionesIniciales.map((operacion) => {
                     const esActiva = accionActiva === operacion.name;
                     const hayActiva = !!accionActiva;

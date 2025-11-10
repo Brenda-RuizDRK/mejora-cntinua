@@ -41,15 +41,13 @@ export default function ProcesoExtr54_2({ reporte }) {
 
                     <p className="font-semibold">Orden: {reporte.orden}</p>
                     <p className="font-semibold">Lote: {reporte.lote}</p>
-                    <div className="flex border border-[#7c380b] rounded-lg px-1 items-center">
-                        <strong>
-                            {fechaActual} - {horaActual}
-                        </strong>
-                    </div>
+                    <p className="flex  rounded-lg px-1 items-center font-bold">
+                        {fechaActual} - {horaActual}
+                    </p>
                     <div className="bg-[#ffed85] p-1 rounded-lg">
                         <p className="font-bold text-[#481b00] text-[17px]">
                             {formulaActual
-                                ? `Fórmula: ${formulaActual}`
+                                ? `No. For: ${formulaActual}`
                                 : "Sin fórmula activa"}
                         </p>
                     </div>

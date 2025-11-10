@@ -38,7 +38,7 @@ export default function Card() {
                         onClick={() => handleClick(producto.id)} // 👈 click redirige
                         className="border inline-block p-3 rounded-2xl bg-white shadow-md hover:shadow-lg transition-transform duration-300 border-l-4 border-amber-400 w-fit cursor-pointer hover:-translate-y-1"
                     >
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-3">
                             <div className="flex gap-2">
                                 <GiPowder className="text-amber-800 text-xl" />
                                 <span className="font-semibold">
