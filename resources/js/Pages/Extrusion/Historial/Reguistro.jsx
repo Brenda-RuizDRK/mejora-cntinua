@@ -119,16 +119,13 @@ export default function Reguistro() {
                                 </option>
                             ))}
                         </select>
-                        <Button
-                            variant="contained"
-                            color="success"
+                        <button
                             onClick={handleExport}
-                            startIcon={
-                                <RiFileExcel2Fill className="text-[#ffffff]" />
-                            }
+                            className="flex px-4 py-2 rounded-lg text-sm gap-1 bg-green-700"
                         >
+                            <RiFileExcel2Fill className="text-[20px]" />
                             Descargar Excel
-                        </Button>
+                        </button>
 
                         {/* 🔽 Botón de orden */}
                         <button
