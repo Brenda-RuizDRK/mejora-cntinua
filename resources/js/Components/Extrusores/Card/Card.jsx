@@ -36,7 +36,7 @@ export default function Card() {
                     <div
                         key={producto.id}
                         onClick={() => handleClick(producto.id)} // 👈 click redirige
-                        className="border inline-block p-3 rounded-2xl bg-white shadow-md hover:shadow-lg transition-transform duration-300 border-l-4 border-amber-400 w-[300px] cursor-pointer hover:-translate-y-1"
+                        className="border inline-block p-3 rounded-2xl bg-white shadow-md hover:shadow-lg transition-transform duration-300 border-l-4 border-amber-400 w-fit cursor-pointer hover:-translate-y-1"
                     >
                         <div className="flex justify-between">
                             <div className="flex gap-2">
@@ -56,7 +56,7 @@ export default function Card() {
                             {producto.nombre}
                         </p>
 
-                        <span className="ml-2  font-bold text-yellow-700 bg-yellow-200 px-2 py-1 rounded flex items-center w-[50%] gap-1">
+                        <span className="ml-2 w-fit font-bold text-yellow-700 bg-yellow-200 px-2 py-1 rounded flex items-center gap-1">
                             <FcSurvey /> {producto.accion}
                         </span>
                     </div>
