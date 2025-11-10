@@ -22,11 +22,13 @@ class ReporteProcesoExtrudeAccion extends Model
         'operador',
         'status'
     ];
-    // Relación con el modelo ReporteProcesoExtrude
-   public function reporteProcesoExtrude()
+
+
+public function reporteProcesoExtrude()
 {
-    return $this->belongsTo(ReporteProcesoExtrude::class, 'reporte_proceso_id');
+    return $this->belongsTo(\App\Models\ReporteProcesoExtrude::class, 'reporte_proceso_id');
 }
+
 
 
 }

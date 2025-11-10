@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\ReporteProcesoExtrude;
 use App\Models\ReporteProcesoExtrudeAccion;
 use App\Models\EtiquetaProduccion;
+use App\Exports\ReporteProcesoExtrudeAccionesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReporteProcesoExtrusionController extends Controller
 {
@@ -180,8 +182,13 @@ public function cerrarAccion(Request $request, $id)
 public function indexAcciones()
 {
     try {
-        $acciones = ReporteProcesoExtrudeAccion::with('reporteProcesoExtrude:id,orden,lote,maquina')
-            ->orderBy('id', 'desc')
+        $acciones = ReporteProcesoExtrudeAccion::with([
+            // Incluye el reporte con los campos necesarios
+            'reporteProcesoExtrude:id,orden,lote,maquina,producto_etiqueta_id,status',
+            // Y dentro de él, incluye la cadena etiquetaProduccion → producto2
+            'reporteProcesoExtrude.etiquetaProduccion.producto2:id,nombre,clave'
+        ])
+            ->orderBy('id', 'asc')
             ->get([
                 'id',
                 'reporte_proceso_id',
@@ -193,6 +200,7 @@ public function indexAcciones()
                 'operador',
                 'paro',
                 'no_formula',
+                'status'
             ]);
 
         return inertia('Extrusion/Historial/Reguistro', [
@@ -202,6 +210,7 @@ public function indexAcciones()
         return back()->withErrors(['error' => $e->getMessage()]);
     }
 }
+
 
 public function productosEXT54()
 {
@@ -250,6 +259,11 @@ public function finalizarProceso($id)
             'message' => $e->getMessage(),
         ], 500);
     }
+}
+
+public function exportAcciones()
+{
+    return Excel::download(new ReporteProcesoExtrudeAccionesExport, 'reporte_proceso_extrude_acciones.xlsx');
 }
 
 
