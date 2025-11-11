@@ -34,25 +34,26 @@ export default function ProcesoExtr54_2({ reporte }) {
             <div className="p-2">
                 <h2 className="">Acciones del proceso</h2>
 
-                <div className="flex justify-between mb-1 lg:mb-5 gap-1">
-                    <span className="">
+                <div className="flex flex-wrap gap-1 items-center justify-between w-full">
+                    <span>
                         {reporte.producto_nombre} ({reporte.producto_clave})
                     </span>
 
                     <p className="font-semibold">Orden: {reporte.orden}</p>
                     <p className="font-semibold">Lote: {reporte.lote}</p>
                     <p className="flex  rounded-lg px-1 items-center font-bold">
-                        {fechaActual} - {horaActual}
+                        {fechaActual}-{horaActual}
                     </p>
                     <div className="bg-[#ffed85] p-1 rounded-lg">
                         <p className="font-bold text-[#481b00] text-[17px]">
                             {formulaActual
-                                ? `No. For: ${formulaActual}`
+                                ? `Form: ${formulaActual}`
                                 : "Sin fórmula activa"}
                         </p>
                     </div>
                     <div>
-                        <p> {reporte.formulas_totales} red</p>
+                        {/* --- */}
+                        <p> {reporte.formulas_totales} </p>
                     </div>
                 </div>
 
