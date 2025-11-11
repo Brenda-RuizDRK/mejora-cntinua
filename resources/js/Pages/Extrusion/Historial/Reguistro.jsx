@@ -158,6 +158,7 @@ export default function Reguistro() {
                                 <th className="border px-3 py-2">Acción</th>
                                 <th className="border px-3 py-2">Operador</th>
                                 <th className="border px-3 py-2">Paro</th>
+                                <th className="border px-3 py-2">Comentario</th>
                                 <th className="border px-3 py-2">
                                     No. Fórmula
                                 </th>
@@ -215,6 +216,9 @@ export default function Reguistro() {
                                         </td>
                                         <td className="border px-3 py-2">
                                             {accion.paro || "-"}
+                                        </td>
+                                        <td className="border px-3 py-2">
+                                            {accion.comentario || "-"}
                                         </td>
                                         <td className="border px-3 py-2">
                                             {accion.no_formula || "-"}

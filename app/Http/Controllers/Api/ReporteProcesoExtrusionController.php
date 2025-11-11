@@ -200,7 +200,8 @@ public function indexAcciones()
                 'operador',
                 'paro',
                 'no_formula',
-                'status'
+                'status',
+                'comentario'
             ]);
 
         return inertia('Extrusion/Historial/Reguistro', [
@@ -266,6 +267,20 @@ public function finalizarProceso($id)
 public function exportAcciones()
 {
     return Excel::download(new ReporteProcesoExtrudeAccionesExport, 'reporte_proceso_extrude_acciones.xlsx');
+}
+
+
+public function ultimaAccion($reporteId)
+{
+    try {
+        $accion = \App\Models\ReporteProcesoExtrudeAccion::where('reporte_proceso_id', $reporteId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        return response()->json(['accion' => $accion]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
 }
 
 

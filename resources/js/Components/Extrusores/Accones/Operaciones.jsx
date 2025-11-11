@@ -6,6 +6,8 @@ import "../../../../css/Compnents/Extrude.css";
 import DialogFormula from "@/Components/Extrusores/Dialogs/DialogFormula";
 import DialogParo from "@/Components/Extrusores/Dialogs/DialogParo";
 import DialogSubParo from "@/Components/Extrusores/Dialogs/DialogSubParo";
+import DialogMantenimiento from "@/Components/Extrusores/Dialogs/DialogMantenimiento";
+
 import Paro from "@/Components/Acciones/Paro";
 import { FaTools } from "react-icons/fa";
 import { FaDroplet } from "react-icons/fa6";
@@ -16,7 +18,11 @@ import { GiChemicalDrop } from "react-icons/gi";
 import { RiTestTubeFill } from "react-icons/ri";
 import { Button } from "@mui/material"; // o usa tu propio estilo
 
-export default function Operaciones({ reporteId, onFormulaChange }) {
+export default function Operaciones({
+    reporteId,
+    onFormulaChange,
+    onUltimaAccion,
+}) {
     const { auth } = usePage().props;
     const operadorNombre = auth?.user?.nombre || "Desconocido";
 
@@ -95,6 +101,9 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
     const [openFormulaDialog, setOpenFormulaDialog] = useState(false);
     const [numeroFormula, setNumeroFormula] = useState("");
     const [accionSeleccionada, setAccionSeleccionada] = useState(null);
+    const [openMantenimientoDialog, setOpenMantenimientoDialog] =
+        useState(false);
+    const [formulaActual, setFormulaActual] = useState("");
 
     // 🔹 Cargar acción guardada
     useEffect(() => {
@@ -165,16 +174,22 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
 
             const payload = {
                 reporte_proceso_id: reporteId,
-                fecha_inicio, // ✅ solo la fecha
-                hora_inicio, // ✅ solo la hora
+                fecha_inicio,
+                hora_inicio,
                 fecha_final: null,
                 hora_final: null,
                 accion: accion.name,
                 operador: operadorNombre,
-                numero_formula: numFormula,
-                no_formula: numFormula,
                 status: "Activado",
             };
+
+            // Si es mantenimiento, el argumento numFormula es el comentario
+            if (accion.name === "Mantenimiento") {
+                payload.comentario = numFormula; // guarda la causa de mantenimiento
+            } else {
+                payload.numero_formula = numFormula;
+                payload.no_formula = numFormula;
+            }
 
             if (accion.name === "Paro" && paroSeleccionado) {
                 payload.paro = `${paroSeleccionado.num} - ${paroSeleccionado.description}`;
@@ -192,6 +207,11 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
             // 🔹 Notifica al padre el número de fórmula actual
             if (numFormula && onFormulaChange) {
                 onFormulaChange(numFormula);
+            }
+
+            // 🔹 🔔 NUEVO: Notificar al padre que se creó una acción
+            if (onUltimaAccion) {
+                onUltimaAccion(res.data.accion);
             }
 
             toast.success(
@@ -227,10 +247,22 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
             toast.warn("⚠️ Ingresa un número de fórmula antes de continuar.");
             return;
         }
-        if (accionSeleccionada)
+        if (accionSeleccionada) {
             registrarAccion(accionSeleccionada, null, numeroFormula);
-        setOpenFormulaDialog(false);
+            setFormulaActual(numeroFormula); // ✅ guardar la fórmula activa
+        }
     };
+
+    const handleConfirmMantenimiento = (comentario) => {
+        if (accionSeleccionada) {
+            registrarAccion(accionSeleccionada, null, comentario); // usa el comentario como campo adicional
+        }
+        setOpenMantenimientoDialog(false);
+    };
+    useEffect(() => {
+        // si el padre te manda la fórmula actual como prop
+        if (onFormulaChange) setFormulaActual(onFormulaChange);
+    }, [onFormulaChange]);
 
     return (
         <div>
@@ -241,8 +273,25 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
                     const hayActiva = !!accionActiva;
 
                     const handleClick = () => {
-                        if (operacion.name === "Paro") setOpenParoDialog(true);
-                        else {
+                        if (operacion.name === "Paro") {
+                            setOpenParoDialog(true);
+                        } else if (operacion.name === "Mantenimiento") {
+                            setAccionSeleccionada(operacion);
+                            setOpenMantenimientoDialog(true);
+                        } else if (operacion.name === "Limpieza") {
+                            registrarAccion(operacion, null, null);
+                        } else if (
+                            operacion.name === "Formula en Muestra" ||
+                            operacion.name === "Muestra"
+                        ) {
+                            if (!formulaActual) {
+                                toast.warn(
+                                    "⚠️ No hay una fórmula activa en curso."
+                                );
+                                return;
+                            }
+                            registrarAccion(operacion, null, formulaActual);
+                        } else {
                             setAccionSeleccionada(operacion);
                             setOpenFormulaDialog(true);
                         }
@@ -308,6 +357,12 @@ export default function Operaciones({ reporteId, onFormulaChange }) {
                 onClose={() => setOpenSubParoDialog(false)}
                 onSelectSubParo={handleSelectSubParo}
             />
+            <DialogMantenimiento
+                open={openMantenimientoDialog}
+                onClose={() => setOpenMantenimientoDialog(false)}
+                onConfirm={handleConfirmMantenimiento}
+            />
+
             {/* 🟣 Botón para finalizar el proceso */}
             <div className="mt-6 flex justify-center">
                 <button

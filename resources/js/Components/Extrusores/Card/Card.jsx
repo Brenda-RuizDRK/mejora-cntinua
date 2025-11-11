@@ -25,7 +25,7 @@ export default function Card() {
     };
 
     return (
-        <div className="flex flex-col items-center ">
+        <div className="flex  justify-center">
             {/*   <p className="font-bold text-yellow-700">Formula Activa</p> */}
             {productos.length === 0 ? (
                 <p className="text-gray-500">
