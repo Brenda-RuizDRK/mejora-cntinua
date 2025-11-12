@@ -320,10 +320,7 @@ export default function Operaciones({
                             setOpenMantenimientoDialog(true);
                         } else if (operacion.name === "Limpieza") {
                             registrarAccion(operacion, null, null);
-                        } else if (
-                            operacion.name === "Formula en Muestra" ||
-                            operacion.name === "Muestra"
-                        ) {
+                        } else if (operacion.name === "Formula en Muestra") {
                             if (!formulaActual) {
                                 toast.warn(
                                     "⚠️ No hay una fórmula activa en curso."
