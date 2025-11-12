@@ -221,23 +221,29 @@ public function productosEXT54()
         $reportes = ReporteProcesoExtrude::with([
             'etiquetaProduccion.producto2:id,nombre,clave',
             'acciones' => function ($query) {
-                $query->latest('id')->limit(1); // solo la última acción
+                // 🔹 Filtra solo acciones activas
+                $query->where('status', 'Activo')
+                      ->latest('id')
+                      ->limit(1);
             }
         ])
             ->where('maquina', 'EXT54-II')
             ->where('status', 'Activo')
             ->get()
+            // 🔹 Solo incluimos reportes que tengan acción activa
+            ->filter(fn($reporte) => $reporte->acciones->isNotEmpty())
             ->map(function ($reporte) {
-                $ultimaAccion = $reporte->acciones->first();
+                $accionActiva = $reporte->acciones->first();
                 return [
                     'id' => $reporte->id,
                     'nombre' => $reporte->etiquetaProduccion->producto2->nombre ?? 'Sin nombre',
                     'clave' => $reporte->etiquetaProduccion->producto2->clave ?? 'Sin clave',
-                    'formula' => $ultimaAccion->no_formula ?? 'Sin fórmula',
-                    'accion' => $ultimaAccion->accion ?? 'Sin acción', // 👈 agregado
+                    'formula' => $accionActiva->no_formula ?? 'Sin fórmula',
+                    'accion' => $accionActiva->accion ?? 'Sin acción',
                     'fecha' => $reporte->fecha,
                 ];
-            });
+            })
+            ->values(); // Limpia índices
 
         return response()->json($reportes);
     } catch (\Exception $e) {
