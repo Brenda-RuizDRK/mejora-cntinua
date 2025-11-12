@@ -42,6 +42,10 @@ Route::get('/productos-ext54', [ReporteProcesoExtrusionController::class, 'produ
 Route::put('/reporte-proceso-extrude/{id}/finalizar', [ReporteProcesoExtrusionController::class, 'finalizarProceso']);
 Route::get('/extrusion/acciones/export', [ReporteProcesoExtrusionController::class, 'exportAcciones'])->name('extrusion.acciones.export');
 Route::get('/reporte-proceso-extrude/{id}/ultima-accion', [ReporteProcesoExtrusionController::class, 'ultimaAccion']);
+Route::get('/reporte-proceso-extrude/{id}/accion-pasada', [ReporteProcesoExtrusionController::class, 'accionPasada']);
+Route::put('/reporte-proceso-extrude/accion/{id}', [ReporteProcesoExtrusionController::class, 'updateAccion']);
+Route::delete('/reporte-proceso-extrude/accion/{id}', [ReporteProcesoExtrusionController::class, 'eliminarAccion']);
+
 
 });
 

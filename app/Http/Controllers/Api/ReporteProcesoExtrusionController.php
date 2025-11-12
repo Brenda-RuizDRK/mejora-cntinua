@@ -221,29 +221,28 @@ public function productosEXT54()
         $reportes = ReporteProcesoExtrude::with([
             'etiquetaProduccion.producto2:id,nombre,clave',
             'acciones' => function ($query) {
-                // 🔹 Filtra solo acciones activas
-                $query->where('status', 'Activo')
-                      ->latest('id')
-                      ->limit(1);
+                // 🔹 Filtra acciones con status 'Activo' o 'Paro'
+                $query->whereIn('status', ['Activo', 'Paro'])
+                      ->latest('id');
             }
         ])
-            ->where('maquina', 'EXT54-II')
-            ->where('status', 'Activo')
-            ->get()
-            // 🔹 Solo incluimos reportes que tengan acción activa
-            ->filter(fn($reporte) => $reporte->acciones->isNotEmpty())
-            ->map(function ($reporte) {
-                $accionActiva = $reporte->acciones->first();
-                return [
-                    'id' => $reporte->id,
-                    'nombre' => $reporte->etiquetaProduccion->producto2->nombre ?? 'Sin nombre',
-                    'clave' => $reporte->etiquetaProduccion->producto2->clave ?? 'Sin clave',
-                    'formula' => $accionActiva->no_formula ?? 'Sin fórmula',
-                    'accion' => $accionActiva->accion ?? 'Sin acción',
-                    'fecha' => $reporte->fecha,
-                ];
-            })
-            ->values(); // Limpia índices
+        ->where('maquina', 'EXT54-II')
+        ->where('status', 'Activo')
+        ->get()
+        // 🔹 Solo incluimos reportes que tengan al menos una acción válida
+        ->filter(fn($reporte) => $reporte->acciones->isNotEmpty())
+        ->map(function ($reporte) {
+            $accionActiva = $reporte->acciones->first();
+            return [
+                'id' => $reporte->id,
+                'nombre' => $reporte->etiquetaProduccion->producto2->nombre ?? 'Sin nombre',
+                'clave' => $reporte->etiquetaProduccion->producto2->clave ?? 'Sin clave',
+                'formula' => $accionActiva->no_formula ?? 'Sin fórmula',
+                'accion' => $accionActiva->accion ?? 'Sin acción',
+                'fecha' => $reporte->fecha,
+            ];
+        })
+        ->values(); // 🔹 Limpia los índices del array
 
         return response()->json($reportes);
     } catch (\Exception $e) {
@@ -253,6 +252,7 @@ public function productosEXT54()
         ], 500);
     }
 }
+
 
 public function finalizarProceso($id)
 {
@@ -290,6 +290,81 @@ public function ultimaAccion($reporteId)
         return response()->json(['error' => $e->getMessage()], 500);
     }
 }
+public function accionPasada($reporteId)
+{
+    try {
+        // 🔹 Obtenemos las dos últimas acciones registradas
+        $acciones = \App\Models\ReporteProcesoExtrudeAccion::where('reporte_proceso_id', $reporteId)
+            ->orderBy('id', 'desc')
+            ->take(2)
+            ->get();
+
+        // 🔹 Si existen al menos dos, devolvemos la anterior a la última (penúltima)
+        $accionPasada = $acciones->count() > 1 ? $acciones[1] : null;
+
+        return response()->json([
+            'success' => true,
+            'accion_pasada' => $accionPasada,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+//editar
+// ✏️ Editar una acción existente
+public function updateAccion(Request $request, $id)
+{
+    try {
+        $accion = ReporteProcesoExtrudeAccion::findOrFail($id);
+
+        $accion->update([
+            'fecha_inicio' => $request->input('fecha_inicio', $accion->fecha_inicio),
+            'hora_inicio' => $request->input('hora_inicio', $accion->hora_inicio),
+            'fecha_final' => $request->input('fecha_final', $accion->fecha_final),
+            'hora_final' => $request->input('hora_final', $accion->hora_final),
+            'accion' => $request->input('accion', $accion->accion),
+            'paro' => $request->input('paro', $accion->paro),
+            'no_formula' => $request->input('no_formula', $accion->no_formula),
+            'kilos' => $request->input('kilos', $accion->kilos),
+            'comentario' => $request->input('comentario', $accion->comentario),
+            'operador' => $request->input('operador', $accion->operador),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Acción actualizada correctamente.',
+            'accion' => $accion,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+// 🗑️ Eliminar una acción
+public function eliminarAccion($id)
+{
+    try {
+        $accion = ReporteProcesoExtrudeAccion::findOrFail($id);
+        $accion->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Acción eliminada correctamente.',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 
 
 }

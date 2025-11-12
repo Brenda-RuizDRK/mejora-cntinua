@@ -21,7 +21,10 @@ export default function Operaciones({
     reporteId,
     onFormulaChange,
     onUltimaAccion,
-    accionActualFormula, // se mantiene por si el padre la manda
+    accionActualFormula,
+    accionEnEdicion, // 🟣 NUEVO
+    setAccionEnEdicion, // 🟣 NUEVO
+    onUpdateAccion, // 🟣 NUEVO
 }) {
     const { auth } = usePage().props;
     const operadorNombre = auth?.user?.nombre || "Desconocido";
@@ -193,7 +196,7 @@ export default function Operaciones({
                 hora_final: null,
                 accion: accion.name,
                 operador: operadorNombre,
-                status: "Activado",
+                status: accion.name === "Paro" ? "Paro" : "Activado", // ✅ aquí el cambio
             };
 
             if (accion.name === "Mantenimiento") {
@@ -208,6 +211,21 @@ export default function Operaciones({
             }
 
             // 🔹 Guardar la nueva acción
+            // 🟣 Si estamos editando una acción existente
+            if (accionEnEdicion && accionEnEdicion.id) {
+                const res = await axios.put(
+                    `/reporte-proceso-extrude/accion/${accionEnEdicion.id}`,
+                    payload
+                );
+                toast.success(`✏️ Acción actualizada: ${accion.name}`);
+                setAccionActiva(accion.name);
+                setAccionId(res.data.accion.id);
+                setAccionEnEdicion(null); // salir del modo edición
+                if (onUpdateAccion) onUpdateAccion();
+                return;
+            }
+
+            // 🔹 Si no se está editando, crear una nueva acción
             const res = await axios.post(
                 "/reporte-proceso-extrude/accion",
                 payload
