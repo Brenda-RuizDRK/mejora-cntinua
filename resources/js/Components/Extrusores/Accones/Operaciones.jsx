@@ -16,12 +16,12 @@ import { IoIosTimer } from "react-icons/io";
 import { FaGears } from "react-icons/fa6";
 import { GiChemicalDrop } from "react-icons/gi";
 import { RiTestTubeFill } from "react-icons/ri";
-import { Button } from "@mui/material"; // o usa tu propio estilo
 
 export default function Operaciones({
     reporteId,
     onFormulaChange,
     onUltimaAccion,
+    accionActualFormula, // se mantiene por si el padre la manda
 }) {
     const { auth } = usePage().props;
     const operadorNombre = auth?.user?.nombre || "Desconocido";
@@ -105,45 +105,60 @@ export default function Operaciones({
         useState(false);
     const [formulaActual, setFormulaActual] = useState("");
 
-    // 🔹 Cargar acción guardada
+    // Si el padre manda una acción actual, márcala al montar
+    // 🔹 Si el padre manda una acción actual, márcala al montar y sincroniza con backend
     useEffect(() => {
-        const guardada = localStorage.getItem(`accionActiva_${reporteId}`);
-        if (guardada) {
-            const { nombre, id } = JSON.parse(guardada);
-            setAccionActiva(nombre);
-            setAccionId(id);
-        }
-    }, [reporteId]);
-
-    // 🔹 Guardar en localStorage
-    useEffect(() => {
-        if (accionActiva && accionId) {
-            localStorage.setItem(
-                `accionActiva_${reporteId}`,
-                JSON.stringify({ nombre: accionActiva, id: accionId })
+        if (accionActualFormula) {
+            const encontrada = operacionesIniciales.find(
+                (op) => op.name === accionActualFormula
             );
-        } else {
-            localStorage.removeItem(`accionActiva_${reporteId}`);
-        }
-    }, [accionActiva, accionId, reporteId]);
+            if (encontrada) {
+                setAccionActiva(encontrada.name);
+            }
 
-    // 🔹 Registrar acción (cerrar actual si hay una en curso)
+            // 🆕 Sincroniza con la acción real desde el backend
+            const obtenerUltimaAccion = async () => {
+                try {
+                    const res = await axios.get(
+                        `/reporte-proceso-extrude/${reporteId}/ultima-accion`
+                    );
+                    if (res.data?.accion) {
+                        setAccionActiva(res.data.accion.accion);
+                        setAccionId(res.data.accion.id); // ✅ guarda el ID real
+                    }
+                } catch (err) {
+                    console.error("Error al sincronizar última acción:", err);
+                }
+            };
+            obtenerUltimaAccion();
+        }
+    }, [accionActualFormula]);
+
+    // 🔹 Registrar acción
+    // 🔹 Registrar acción
     const registrarAccion = async (
         accion,
         paroSeleccionado = null,
         numFormula = null
     ) => {
         try {
-            // Cierra acción anterior si es distinta
+            // ✅ Si hay una acción activa distinta, la cerramos primero
             if (accionActiva && accionActiva !== accion.name && accionId) {
-                await axios.put(
-                    `/reporte-proceso-extrude/accion/${accionId}/cerrar`
-                );
-                toast.info(`🕓 ${accionActiva} finalizada.`);
+                try {
+                    await axios.put(
+                        `/reporte-proceso-extrude/accion/${accionId}/cerrar`
+                    );
+                    toast.info(`🕓 ${accionActiva} finalizada.`);
+                } catch (cerrarError) {
+                    console.warn(
+                        "⚠️ No se pudo cerrar la acción anterior:",
+                        cerrarError
+                    );
+                }
             }
 
-            // Si se vuelve a seleccionar la misma, se finaliza
-            if (accionActiva === accion.name) {
+            // ✅ Si se hace clic de nuevo sobre la misma acción, la cerramos manualmente
+            if (accionActiva === accion.name && accionId) {
                 await axios.put(
                     `/reporte-proceso-extrude/accion/${accionId}/cerrar`
                 );
@@ -153,18 +168,16 @@ export default function Operaciones({
                 return;
             }
 
+            // 🔹 Preparamos los datos de inicio
             const ahora = new Date();
-
-            // 🗓️ Obtener fecha en formato dd/mm/yyyy
             const fecha_inicio = ahora
                 .toLocaleDateString("es-MX", {
                     day: "2-digit",
                     month: "2-digit",
                     year: "numeric",
                 })
-                .replace(/\//g, "/"); // mantiene el formato dd/mm/yyyy
+                .replace(/\//g, "/");
 
-            // ⏰ Obtener hora en formato hh:mm:ss
             const hora_inicio = ahora.toLocaleTimeString("es-MX", {
                 hour12: false,
                 hour: "2-digit",
@@ -183,9 +196,8 @@ export default function Operaciones({
                 status: "Activado",
             };
 
-            // Si es mantenimiento, el argumento numFormula es el comentario
             if (accion.name === "Mantenimiento") {
-                payload.comentario = numFormula; // guarda la causa de mantenimiento
+                payload.comentario = numFormula;
             } else {
                 payload.numero_formula = numFormula;
                 payload.no_formula = numFormula;
@@ -195,21 +207,28 @@ export default function Operaciones({
                 payload.paro = `${paroSeleccionado.num} - ${paroSeleccionado.description}`;
             }
 
+            // 🔹 Guardar la nueva acción
             const res = await axios.post(
                 "/reporte-proceso-extrude/accion",
                 payload
             );
 
-            // 🔹 Actualiza el estado local
-            setAccionActiva(accion.name);
-            setAccionId(res.data.accion.id);
+            // ✅ Validamos que el backend devuelva un ID válido
+            if (res.data?.accion?.id) {
+                setAccionActiva(accion.name);
+                setAccionId(res.data.accion.id);
+            } else {
+                console.warn(
+                    "⚠️ No se recibió un ID válido de acción:",
+                    res.data
+                );
+            }
 
-            // 🔹 Notifica al padre el número de fórmula actual
+            // 🔹 Actualizamos el padre si aplica
             if (numFormula && onFormulaChange) {
                 onFormulaChange(numFormula);
             }
 
-            // 🔹 🔔 NUEVO: Notificar al padre que se creó una acción
             if (onUltimaAccion) {
                 onUltimaAccion(res.data.accion);
             }
@@ -249,18 +268,18 @@ export default function Operaciones({
         }
         if (accionSeleccionada) {
             registrarAccion(accionSeleccionada, null, numeroFormula);
-            setFormulaActual(numeroFormula); // ✅ guardar la fórmula activa
+            setFormulaActual(numeroFormula);
         }
     };
 
     const handleConfirmMantenimiento = (comentario) => {
         if (accionSeleccionada) {
-            registrarAccion(accionSeleccionada, null, comentario); // usa el comentario como campo adicional
+            registrarAccion(accionSeleccionada, null, comentario);
         }
         setOpenMantenimientoDialog(false);
     };
+
     useEffect(() => {
-        // si el padre te manda la fórmula actual como prop
         if (onFormulaChange) setFormulaActual(onFormulaChange);
     }, [onFormulaChange]);
 
@@ -269,7 +288,10 @@ export default function Operaciones({
             {/* 🔘 Botones de acciones */}
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 ">
                 {operacionesIniciales.map((operacion) => {
-                    const esActiva = accionActiva === operacion.name;
+                    const esActiva =
+                        accionActiva === operacion.name ||
+                        accionActualFormula === operacion.name; // ✅ activa si coincide con ultimaAccion
+
                     const hayActiva = !!accionActiva;
 
                     const handleClick = () => {
@@ -302,27 +324,21 @@ export default function Operaciones({
                             key={operacion.id}
                             onClick={handleClick}
                             className={`relative cursor-pointer rounded-2xl shadow-md overflow-hidden transition-transform transform hover:scale-105 w-[200px] ${
-                                esActiva ? "ring-4 ring-green-700" : ""
+                                esActiva
+                                    ? "ring-4 ring-green-700 brightness-110"
+                                    : ""
                             }`}
                             style={{
-                                backgroundColor: hayActiva
-                                    ? esActiva
-                                        ? operacion.bgColor
-                                        : "#d1d5db"
-                                    : operacion.bgColor,
-                                color: hayActiva
-                                    ? esActiva
-                                        ? operacion.color
-                                        : "#555"
-                                    : operacion.color,
+                                backgroundColor: esActiva
+                                    ? operacion.bgColor
+                                    : "#d1d5db",
+                                color: esActiva ? operacion.color : "#555",
                             }}
                         >
-                            {/* Ícono de fondo translúcido */}
                             <div className="absolute inset-0 flex items-center justify-start opacity-40 pl-0 left-[-8%]">
                                 <div>{operacion.icons}</div>
                             </div>
 
-                            {/* Contenido principal */}
                             <div className="relative flex flex-col sm:flex-row items-center sm:justify-between text-center sm:text-left px-2 py-2">
                                 <div className="text-[30px] sm:text-[33px] lg:text-[40px] font-extrabold tracking-wide contorno text-[#f2f9fd] leading-tight">
                                     {operacion.abreviatura}
@@ -357,6 +373,7 @@ export default function Operaciones({
                 onClose={() => setOpenSubParoDialog(false)}
                 onSelectSubParo={handleSelectSubParo}
             />
+
             <DialogMantenimiento
                 open={openMantenimientoDialog}
                 onClose={() => setOpenMantenimientoDialog(false)}
@@ -381,7 +398,7 @@ export default function Operaciones({
                                 toast.success(
                                     "✅ Proceso finalizado correctamente"
                                 );
-                                window.location.href = "/"; // redirige al inicio o donde quieras
+                                window.location.href = "/";
                             } else {
                                 toast.error(
                                     "⚠️ No se pudo finalizar el proceso"

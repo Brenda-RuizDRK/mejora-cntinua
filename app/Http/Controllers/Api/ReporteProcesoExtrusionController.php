@@ -114,11 +114,12 @@ class ReporteProcesoExtrusionController extends Controller
         'status' => 'Activo', // ✅ Nuevo campo
     ]);
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Acción registrada correctamente.',
-        'accion' => $accion,
-    ]);
+return response()->json([
+    'success' => true,
+    'message' => 'Acción registrada correctamente.',
+    'accion' => $accion,
+]);
+
 }
 
 
@@ -126,7 +127,8 @@ class ReporteProcesoExtrusionController extends Controller
 public function cerrarAccion(Request $request, $id)
 {
     try {
-        $accion = ReporteProcesoExtrudeAccion::findOrFail($id);
+$accion = ReporteProcesoExtrudeAccion::findOrFail($id);
+
 
         $ahora = now()->setTimezone('America/Mexico_City');
 

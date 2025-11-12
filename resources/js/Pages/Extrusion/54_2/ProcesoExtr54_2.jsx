@@ -62,11 +62,12 @@ export default function ProcesoExtr54_2({ reporte }) {
                         {fechaActual}-{horaActual}
                     </p>
                     <div className="bg-[#ffed85] p-1 rounded-lg">
-                        <p className="font-bold text-[#481b00] text-[17px]">
-                            {formulaActual
-                                ? `Form: ${formulaActual}`
-                                : "Sin fórmula activa"}
-                        </p>
+                        {ultimaAccion && (
+                            <p className="font-bold text-[#481b00] text-[17px]">
+                                Formula: {""}
+                                {ultimaAccion.no_formula}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -89,6 +90,7 @@ export default function ProcesoExtr54_2({ reporte }) {
                     reporteId={reporte.id}
                     onFormulaChange={setFormulaActual}
                     onUltimaAccion={(accion) => setUltimaAccion(accion)}
+                    accionActualFormula={ultimaAccion?.accion}
                 />
             </div>
         </AuthenticatedLayout>
