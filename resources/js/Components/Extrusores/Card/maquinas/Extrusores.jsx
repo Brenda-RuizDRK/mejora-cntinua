@@ -1,7 +1,7 @@
 import React from "react";
 import GraficaAcciones from "../../Graficas/GraficaAcciones";
 
-export default function ExtrusorCard({ reporte }) {
+export default function ExtrusorCard() {
     return (
         <div className=" text-white rounded-xl p-4 w-56 shadow-lg border border-gray-800">
             {/* Encabezado */}
@@ -13,8 +13,6 @@ export default function ExtrusorCard({ reporte }) {
                 <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-lg">
                     Activa
                 </span>
-
-                {/*   <GraficaAcciones reporteId={reporte.id} /> */}
             </div>
         </div>
     );

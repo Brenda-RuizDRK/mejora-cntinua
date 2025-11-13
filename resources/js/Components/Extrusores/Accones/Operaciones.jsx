@@ -16,6 +16,7 @@ import { IoIosTimer } from "react-icons/io";
 import { FaGears } from "react-icons/fa6";
 import { GiChemicalDrop } from "react-icons/gi";
 import { RiTestTubeFill } from "react-icons/ri";
+import DialogConfirmarFinProceso from "@/Components/Extrusores/Dialogs/DialogConfirmarFinProceso";
 
 export default function Operaciones({
     reporteId,
@@ -107,6 +108,7 @@ export default function Operaciones({
     const [openMantenimientoDialog, setOpenMantenimientoDialog] =
         useState(false);
     const [formulaActual, setFormulaActual] = useState("");
+    const [openDialogFinProceso, setOpenDialogFinProceso] = useState(false);
 
     // Si el padre manda una acción actual, márcala al montar
     // 🔹 Si el padre manda una acción actual, márcala al montar y sincroniza con backend
@@ -297,6 +299,26 @@ export default function Operaciones({
         if (onFormulaChange) setFormulaActual(onFormulaChange);
     }, [onFormulaChange]);
 
+    const finalizarProceso = async () => {
+        try {
+            const res = await axios.put(
+                `/reporte-proceso-extrude/${reporteId}/finalizar`
+            );
+
+            if (res.data.success) {
+                toast.success("✅ Proceso finalizado correctamente");
+                window.location.href = "/";
+            } else {
+                toast.error("⚠️ No se pudo finalizar el proceso");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("❌ Error al finalizar el proceso");
+        } finally {
+            setOpenDialogFinProceso(false);
+        }
+    };
+
     return (
         <div>
             {/* 🔘 Botones de acciones */}
@@ -390,36 +412,16 @@ export default function Operaciones({
                 onClose={() => setOpenMantenimientoDialog(false)}
                 onConfirm={handleConfirmMantenimiento}
             />
+            <DialogConfirmarFinProceso
+                open={openDialogFinProceso}
+                onClose={() => setOpenDialogFinProceso(false)}
+                onConfirm={finalizarProceso}
+            />
 
             {/* 🟣 Botón para finalizar el proceso */}
             <div className="mt-6 flex justify-center">
                 <button
-                    onClick={async () => {
-                        try {
-                            const confirm = window.confirm(
-                                "¿Seguro que deseas finalizar este proceso? Esto lo marcará como Desactivado."
-                            );
-                            if (!confirm) return;
-
-                            const res = await axios.put(
-                                `/reporte-proceso-extrude/${reporteId}/finalizar`
-                            );
-
-                            if (res.data.success) {
-                                toast.success(
-                                    "✅ Proceso finalizado correctamente"
-                                );
-                                window.location.href = "/";
-                            } else {
-                                toast.error(
-                                    "⚠️ No se pudo finalizar el proceso"
-                                );
-                            }
-                        } catch (error) {
-                            console.error(error);
-                            toast.error("❌ Error al finalizar el proceso");
-                        }
-                    }}
+                    onClick={() => setOpenDialogFinProceso(true)}
                     className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition"
                 >
                     Ha terminado el proceso

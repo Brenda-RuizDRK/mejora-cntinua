@@ -4,6 +4,7 @@ import axios from "axios";
 /**
  * Hook personalizado para obtener y gestionar las acciones
  * (última y pasada) de un extrusor en base a su reporte ID.
+ * ✅ Solo procesa datos si el campo "maquina" del reporte es "EXT54-II".
  */
 export default function useAccionesExtrusor(reporteId) {
     const [ultimaAccion, setUltimaAccion] = useState(null);
@@ -13,6 +14,7 @@ export default function useAccionesExtrusor(reporteId) {
     // 🔄 Obtener las acciones
     const fetchAcciones = async () => {
         if (!reporteId) return;
+
         try {
             const [ultima, pasada] = await Promise.all([
                 axios.get(
@@ -22,8 +24,26 @@ export default function useAccionesExtrusor(reporteId) {
                     `/reporte-proceso-extrude/${reporteId}/accion-pasada`
                 ),
             ]);
-            setUltimaAccion(ultima.data?.accion || null);
-            setAccionPasada(pasada.data?.accion_pasada || null);
+
+            const ultimaData = ultima.data?.accion || null;
+            const pasadaData = pasada.data?.accion_pasada || null;
+            console.log(ultimaData);
+
+            // 🔍 Validar que pertenezcan a la máquina EXT54-II
+            const esMaquinaValida =
+                ultimaData?.reporte_proceso_extrude?.maquina === "EXT54-II" ||
+                pasadaData?.reporte_proceso_extrude?.maquina === "EXT54-II";
+
+            if (esMaquinaValida) {
+                setUltimaAccion(ultimaData);
+                setAccionPasada(pasadaData);
+            } else {
+                console.warn(
+                    `⚠️ Se ignoraron acciones del reporte ${reporteId} porque no pertenecen a EXT54-II`
+                );
+                setUltimaAccion(null);
+                setAccionPasada(null);
+            }
         } catch (error) {
             console.error("Error al obtener acciones:", error);
         }

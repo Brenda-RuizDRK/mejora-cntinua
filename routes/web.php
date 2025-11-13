@@ -46,8 +46,6 @@ Route::get('/reporte-proceso-extrude/{id}/accion-pasada', [ReporteProcesoExtrusi
 Route::put('/reporte-proceso-extrude/accion/{id}', [ReporteProcesoExtrusionController::class, 'updateAccion']);
 Route::delete('/reporte-proceso-extrude/accion/{id}', [ReporteProcesoExtrusionController::class, 'eliminarAccion']);
 Route::get('/extruion-report', [SupExtrusorController::class, 'index'])->name('supextrude.index');
-Route::get('/reporte-proceso-extrude/{id}/acciones-ultimas-3h', [ReporteProcesoExtrusionController::class, 'accionesUltimas3h']);
-
 
 });
 

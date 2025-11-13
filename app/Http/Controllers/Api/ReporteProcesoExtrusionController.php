@@ -281,7 +281,8 @@ public function exportAcciones()
 public function ultimaAccion($reporteId)
 {
     try {
-        $accion = \App\Models\ReporteProcesoExtrudeAccion::where('reporte_proceso_id', $reporteId)
+        $accion = \App\Models\ReporteProcesoExtrudeAccion::with('reporteProcesoExtrude')
+            ->where('reporte_proceso_id', $reporteId)
             ->orderBy('id', 'desc')
             ->first();
 
@@ -290,16 +291,16 @@ public function ultimaAccion($reporteId)
         return response()->json(['error' => $e->getMessage()], 500);
     }
 }
+
 public function accionPasada($reporteId)
 {
     try {
-        // 🔹 Obtenemos las dos últimas acciones registradas
-        $acciones = \App\Models\ReporteProcesoExtrudeAccion::where('reporte_proceso_id', $reporteId)
+        $acciones = \App\Models\ReporteProcesoExtrudeAccion::with('reporteProcesoExtrude')
+            ->where('reporte_proceso_id', $reporteId)
             ->orderBy('id', 'desc')
             ->take(2)
             ->get();
 
-        // 🔹 Si existen al menos dos, devolvemos la anterior a la última (penúltima)
         $accionPasada = $acciones->count() > 1 ? $acciones[1] : null;
 
         return response()->json([
@@ -313,7 +314,7 @@ public function accionPasada($reporteId)
         ], 500);
     }
 }
-//editar
+
 // ✏️ Editar una acción existente
 public function updateAccion(Request $request, $id)
 {
