@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\ExtruisionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Api\ReporteProcesoExtrusionController;
-
+use App\Http\Controllers\Api\SupExtrusorController;
 
 
 Route::get('/', function () {
@@ -45,6 +45,8 @@ Route::get('/reporte-proceso-extrude/{id}/ultima-accion', [ReporteProcesoExtrusi
 Route::get('/reporte-proceso-extrude/{id}/accion-pasada', [ReporteProcesoExtrusionController::class, 'accionPasada']);
 Route::put('/reporte-proceso-extrude/accion/{id}', [ReporteProcesoExtrusionController::class, 'updateAccion']);
 Route::delete('/reporte-proceso-extrude/accion/{id}', [ReporteProcesoExtrusionController::class, 'eliminarAccion']);
+Route::get('/extruion-report', [SupExtrusorController::class, 'index'])->name('supextrude.index');
+Route::get('/reporte-proceso-extrude/{id}/acciones-ultimas-3h', [ReporteProcesoExtrusionController::class, 'accionesUltimas3h']);
 
 
 });

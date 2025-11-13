@@ -137,8 +137,6 @@ export default function Operaciones({
         }
     }, [accionActualFormula]);
 
-    // 🔹 Registrar acción
-    // 🔹 Registrar acción
     const registrarAccion = async (
         accion,
         paroSeleccionado = null,
@@ -209,8 +207,6 @@ export default function Operaciones({
             if (accion.name === "Paro" && paroSeleccionado) {
                 payload.paro = `${paroSeleccionado.num} - ${paroSeleccionado.description}`;
             }
-
-            // 🔹 Guardar la nueva acción
             // 🟣 Si estamos editando una acción existente
             if (accionEnEdicion && accionEnEdicion.id) {
                 const res = await axios.put(

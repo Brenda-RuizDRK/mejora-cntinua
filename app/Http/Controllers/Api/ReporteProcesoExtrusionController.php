@@ -365,6 +365,42 @@ public function eliminarAccion($id)
     }
 }
 
+public function accionesUltimas3h($reporteId)
+{
+    try {
+        $ahora = now()->setTimezone('America/Mexico_City');
+        $hace3h = $ahora->copy()->subHours(3);
+
+        $acciones = \App\Models\ReporteProcesoExtrudeAccion::where('reporte_proceso_id', $reporteId)
+            ->where(function ($q) use ($hace3h, $ahora) {
+                $q->whereBetween('created_at', [$hace3h, $ahora])
+                  ->orWhereBetween('updated_at', [$hace3h, $ahora]);
+            })
+            ->orderBy('fecha_inicio', 'asc')
+            ->orderBy('hora_inicio', 'asc')
+            ->get([
+                'id',
+                'accion',
+                'fecha_inicio',
+                'hora_inicio',
+                'fecha_final',
+                'hora_final',
+                'operador',
+                'paro',
+                'no_formula',
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'acciones' => $acciones,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
 
 
 }

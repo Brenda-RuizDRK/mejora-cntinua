@@ -1,13 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
-import { usePage } from "@inertiajs/react";
-import Proceso from "@/Components/Extrusores/Accones/Proceso";
+import React, { useEffect, useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import Operaciones from "@/Components/Extrusores/Accones/Operaciones";
-import axios from "axios";
+import useAccionesExtrusor from "@/Hooks/useAccionesExtrusor";
 import { MdModeEditOutline } from "react-icons/md";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import IconButton from "@mui/material/IconButton";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 export default function ProcesoExtr54_2({ reporte }) {
     const [fechaActual, setFechaActual] = useState("");
@@ -15,10 +14,18 @@ export default function ProcesoExtr54_2({ reporte }) {
     const [formulaActual, setFormulaActual] = useState(
         () => localStorage.getItem(`formulaActual_${reporte.id}`) || null
     );
-    const [ultimaAccion, setUltimaAccion] = useState(null);
-    const [accionPasada, setAccionPasada] = useState(null);
+
+    // ✅ Hook reutilizable
+    const {
+        ultimaAccion,
+        accionPasada,
+        setUltimaAccion,
+        setAccionPasada,
+        fetchAcciones,
+        eliminarAccion,
+    } = useAccionesExtrusor(reporte.id);
+
     const [accionEnEdicion, setAccionEnEdicion] = useState(null);
-    const cargadoRef = useRef(false); // 🚫 evita múltiples llamadas al montar
 
     // 🕒 fecha/hora en tiempo real
     useEffect(() => {
@@ -36,58 +43,15 @@ export default function ProcesoExtr54_2({ reporte }) {
             localStorage.setItem(`formulaActual_${reporte.id}`, formulaActual);
     }, [formulaActual]);
 
-    // 🔄 Obtener acciones (solo si se solicita o recarga la página)
-    const fetchAcciones = async () => {
-        try {
-            const [ultima, pasada] = await Promise.all([
-                axios.get(
-                    `/reporte-proceso-extrude/${reporte.id}/ultima-accion`
-                ),
-                axios.get(
-                    `/reporte-proceso-extrude/${reporte.id}/accion-pasada`
-                ),
-            ]);
-            setUltimaAccion(ultima.data?.accion || null);
-            setAccionPasada(pasada.data?.accion_pasada || null);
-        } catch (e) {
-            console.error("Error al obtener acciones:", e);
-        }
-    };
-
-    // 🧠 Solo ejecuta una vez al cargar la página
-    useEffect(() => {
-        if (!cargadoRef.current) {
-            cargadoRef.current = true;
-            fetchAcciones();
-        }
-    }, [reporte.id]);
-
-    // ✏️ Editar acción
     const handleEditarAccion = () => {
         if (!ultimaAccion) return;
         setAccionEnEdicion(ultimaAccion);
         toast.info("Editando acción en curso...");
     };
 
-    // 🗑️ Eliminar acción
     const handleEliminarAccion = async () => {
-        if (!ultimaAccion) return;
-        const confirmar = window.confirm(
-            "¿Seguro que deseas eliminar esta acción?"
-        );
-        if (!confirmar) return;
-
-        try {
-            await axios.delete(
-                `/reporte-proceso-extrude/accion/${ultimaAccion.id}`
-            );
-            toast.success("Acción eliminada correctamente.");
-            setUltimaAccion(null);
-            fetchAcciones();
-        } catch (e) {
-            console.error(e);
-            toast.error("Error al eliminar la acción.");
-        }
+        await eliminarAccion();
+        toast.success("Acción eliminada correctamente.");
     };
 
     return (
@@ -164,7 +128,7 @@ export default function ProcesoExtr54_2({ reporte }) {
                     accionActualFormula={ultimaAccion?.accion}
                     accionEnEdicion={accionEnEdicion}
                     setAccionEnEdicion={setAccionEnEdicion}
-                    onUpdateAccion={fetchAcciones} // 🔄 se llama solo cuando el usuario lo pida
+                    onUpdateAccion={fetchAcciones}
                 />
             </div>
         </AuthenticatedLayout>
