@@ -1,5 +1,5 @@
 import HeaderMonitoreo from "@/Components/Extrusores/HeaderMonitoreo";
-import Extrusores from "@/Components/Extrusores/Card/maquinas/Extrusores";
+import ExtrusorCard from "@/Components/Extrusores/Card/maquinas/Extrusores";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Dasbhort() {
@@ -8,7 +8,7 @@ export default function Dasbhort() {
             <div className="min-h-screen  text-white">
                 <HeaderMonitoreo />
                 <div className="p-4 component">
-                    <Extrusores />
+                    <ExtrusorCard />
                 </div>
             </div>
         </AuthenticatedLayout>

@@ -48,13 +48,7 @@ export default function Card() {
 }
 
 function ProductoCard({ producto, onClick }) {
-    const { ultimaAccion, accionPasada } = useAccionesExtrusor(producto.id);
-
-    useEffect(() => {
-        console.log("🟢 Datos del reporte:", producto);
-        console.log("🟠 Última acción:", ultimaAccion);
-        console.log("🟣 Acción pasada:", accionPasada);
-    }, [producto, ultimaAccion, accionPasada]);
+    const { ultimaAccion } = useAccionesExtrusor(producto.id);
 
     return (
         <div
