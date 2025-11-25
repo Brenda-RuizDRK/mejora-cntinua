@@ -1,11 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
-/**
- * Hook personalizado para obtener y gestionar las acciones
- * (última y pasada) de un extrusor en base a su reporte ID.
- * ✅ Solo procesa datos si el campo "maquina" del reporte es "EXT54-II".
- */
 export default function useAccionesExtrusor(reporteId) {
     const [ultimaAccion, setUltimaAccion] = useState(null);
     const [accionPasada, setAccionPasada] = useState(null);
@@ -30,9 +25,7 @@ export default function useAccionesExtrusor(reporteId) {
             console.log(ultimaData);
 
             // 🔍 Validar que pertenezcan a la máquina EXT54-II
-            const esMaquinaValida =
-                ultimaData?.reporte_proceso_extrude?.maquina === "EXT54-II" ||
-                pasadaData?.reporte_proceso_extrude?.maquina === "EXT54-II";
+            const esMaquinaValida = true;
 
             if (esMaquinaValida) {
                 setUltimaAccion(ultimaData);

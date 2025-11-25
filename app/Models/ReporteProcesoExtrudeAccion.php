@@ -26,9 +26,7 @@ class ReporteProcesoExtrudeAccion extends Model
 
 public function reporteProcesoExtrude()
 {
-    return $this->belongsTo(\App\Models\ReporteProcesoExtrude::class, 'reporte_proceso_id');
+    return $this->belongsTo(ReporteProcesoExtrude::class, 'reporte_proceso_id');
 }
-
-
 
 }

@@ -5,7 +5,6 @@ import { Link } from "@inertiajs/react";
 import { BsArrowLeftCircleFill } from "react-icons/bs";
 import Info from "@/Components/Extrusores/InfoProducto/Info";
 import Card from "@/Components/Extrusores/Card/Card";
-import AccionAnterior from "@/Components/Extrusores/Card/AccionAnterior";
 
 export default function Ext54_2() {
     return (
@@ -17,7 +16,6 @@ export default function Ext54_2() {
                     <h1>Ext54 II</h1>
                 </div>
                 <Card />
-                <AccionAnterior />
                 <Info maquina="EXT54-II" /> {/* Pasamos la prop */}
             </div>
         </AuthenticatedLayout>

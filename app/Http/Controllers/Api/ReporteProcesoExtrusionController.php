@@ -280,39 +280,27 @@ public function exportAcciones()
 
 public function ultimaAccion($reporteId)
 {
-    try {
-        $accion = \App\Models\ReporteProcesoExtrudeAccion::with('reporteProcesoExtrude')
-            ->where('reporte_proceso_id', $reporteId)
-            ->orderBy('id', 'desc')
-            ->first();
+    $accion = ReporteProcesoExtrudeAccion::where('reporte_proceso_id', $reporteId)
+        ->whereIn('status', ['Activo', 'Paro']) // las que están en proceso
+        ->latest('id') // última acción
+        ->first();
 
-        return response()->json(['accion' => $accion]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
-    }
+    return response()->json([
+        'accion' => $accion
+    ]);
 }
 
 public function accionPasada($reporteId)
 {
-    try {
-        $acciones = \App\Models\ReporteProcesoExtrudeAccion::with('reporteProcesoExtrude')
-            ->where('reporte_proceso_id', $reporteId)
-            ->orderBy('id', 'desc')
-            ->take(2)
-            ->get();
+    // obtener las últimas 2 acciones y regresar la penúltima
+    $acciones = ReporteProcesoExtrudeAccion::where('reporte_proceso_id', $reporteId)
+        ->orderBy('id', 'desc')
+        ->take(2)
+        ->get();
 
-        $accionPasada = $acciones->count() > 1 ? $acciones[1] : null;
-
-        return response()->json([
-            'success' => true,
-            'accion_pasada' => $accionPasada,
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage(),
-        ], 500);
-    }
+    return response()->json([
+        'accion_pasada' => $acciones->count() === 2 ? $acciones[1] : null
+    ]);
 }
 
 // ✏️ Editar una acción existente
@@ -402,6 +390,7 @@ public function accionesUltimas3h($reporteId)
         ], 500);
     }
 }
+
 
 
 }

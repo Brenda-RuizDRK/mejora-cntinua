@@ -27,8 +27,18 @@ class ReporteProcesoExtrude extends Model
     {
         return $this->belongsTo(EtiquetaProduccion::class, 'producto_etiqueta_id');
     }
-    public function acciones()
+ /*    public function acciones()
     {
         return $this->hasMany(\App\Models\ReporteProcesoExtrudeAccion::class, 'reporte_proceso_id');
-    }
+    } */
+   public function acciones()
+{
+    return $this->hasMany(ReporteProcesoExtrudeAccion::class, 'reporte_proceso_id');
+}
+
+    public function producto()
+{
+    return $this->belongsTo(EtiquetaProduccion::class, 'producto_etiqueta_id');
+}
+
 }
