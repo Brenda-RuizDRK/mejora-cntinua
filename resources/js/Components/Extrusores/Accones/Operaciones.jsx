@@ -17,11 +17,15 @@ import { FaGears } from "react-icons/fa6";
 import { GiChemicalDrop } from "react-icons/gi";
 import { RiTestTubeFill } from "react-icons/ri";
 import DialogConfirmarFinProceso from "@/Components/Extrusores/Dialogs/DialogConfirmarFinProceso";
-import DialogKilos from "@/Components/Extrusores/Dialogs/DialogKilos";
+
 export default function Operaciones({
     reporteId,
     onFormulaChange,
+    onUltimaAccion,
     accionActualFormula,
+    accionEnEdicion, // 🟣 NUEVO
+    setAccionEnEdicion, // 🟣 NUEVO
+    onUpdateAccion, // 🟣 NUEVO
 }) {
     const { auth } = usePage().props;
     const operadorNombre = auth?.user?.nombre || "Desconocido";
@@ -105,11 +109,9 @@ export default function Operaciones({
         useState(false);
     const [formulaActual, setFormulaActual] = useState("");
     const [openDialogFinProceso, setOpenDialogFinProceso] = useState(false);
-    // --- NUEVOS ESTADOS ----
-    const [openKilosDialog, setOpenKilosDialog] = useState(false);
-    const [kilosIngresados, setKilosIngresados] = useState("");
-    const [accionPendiente, setAccionPendiente] = useState(null);
 
+    // Si el padre manda una acción actual, márcala al montar
+    // 🔹 Si el padre manda una acción actual, márcala al montar y sincroniza con backend
     useEffect(() => {
         if (accionActualFormula) {
             const encontrada = operacionesIniciales.find(
@@ -118,6 +120,8 @@ export default function Operaciones({
             if (encontrada) {
                 setAccionActiva(encontrada.name);
             }
+
+            // 🆕 Sincroniza con la acción real desde el backend
             const obtenerUltimaAccion = async () => {
                 try {
                     const res = await axios.get(
@@ -134,85 +138,48 @@ export default function Operaciones({
             obtenerUltimaAccion();
         }
     }, [accionActualFormula]);
-    const cerrarAccionAnteriorConKilos = async () => {
-        if (!accionId) return;
-
-        try {
-            const ahora = new Date();
-
-            const fecha_final = ahora.toLocaleDateString("es-MX", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-            });
-
-            const hora_final = ahora.toLocaleTimeString("es-MX", {
-                hour12: false,
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-            });
-
-            await axios.put(
-                `/reporte-proceso-extrude/accion/${accionId}/cerrar`,
-                {
-                    fecha_final,
-                    hora_final,
-                    kilos: kilosIngresados,
-                }
-            );
-
-            toast.success(
-                `✔ Acción ${accionActiva} finalizada (${kilosIngresados} kg)`
-            );
-            setAccionActiva(null);
-            setAccionId(null);
-            if (accionPendiente) {
-                registrarAccion(
-                    accionPendiente.operacion,
-                    accionPendiente.paro,
-                    accionPendiente.formula,
-                    true
-                );
-                setAccionPendiente(null);
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error("❌ Error al cerrar la acción anterior.");
-        }
-    };
 
     const registrarAccion = async (
         accion,
         paroSeleccionado = null,
-        numFormula = null,
-        forzarInicio = false
+        numFormula = null
     ) => {
-        if (
-            !forzarInicio &&
-            accionActiva &&
-            accionActiva !== accion.name &&
-            accionId
-        ) {
-            setAccionPendiente({
-                operacion: accion,
-                paro: paroSeleccionado,
-                formula: numFormula,
-            });
-            setOpenKilosDialog(true);
-            return;
-        }
-        // ---------------------------------------
-        // AQUÍ INICIA LA ACCIÓN NUEVA NORMALMENTE
-        // ---------------------------------------
         try {
-            const ahora = new Date();
+            // ✅ Si hay una acción activa distinta, la cerramos primero
+            if (accionActiva && accionActiva !== accion.name && accionId) {
+                try {
+                    await axios.put(
+                        `/reporte-proceso-extrude/accion/${accionId}/cerrar`
+                    );
+                    toast.info(`🕓 ${accionActiva} finalizada.`);
+                } catch (cerrarError) {
+                    console.warn(
+                        "⚠️ No se pudo cerrar la acción anterior:",
+                        cerrarError
+                    );
+                }
+            }
 
-            const fecha_inicio = ahora.toLocaleDateString("es-MX", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-            });
+            // ✅ Si se hace clic de nuevo sobre la misma acción, la cerramos manualmente
+            if (accionActiva === accion.name && accionId) {
+                await axios.put(
+                    `/reporte-proceso-extrude/accion/${accionId}/cerrar`
+                );
+                setAccionActiva(null);
+                setAccionId(null);
+                toast.info(`🕓 ${accion.name} finalizada.`);
+                return;
+            }
+
+            // 🔹 Preparamos los datos de inicio
+            const ahora = new Date();
+            const fecha_inicio = ahora
+                .toLocaleDateString("es-MX", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                })
+                .replace(/\//g, "/");
 
             const hora_inicio = ahora.toLocaleTimeString("es-MX", {
                 hour12: false,
@@ -229,36 +196,70 @@ export default function Operaciones({
                 hora_final: null,
                 accion: accion.name,
                 operador: operadorNombre,
-                status: accion.name === "Paro" ? "Paro" : "Activado",
-                kilos: null,
-                no_formula: numFormula,
+                status: accion.name === "Paro" ? "Paro" : "Activado", // ✅ aquí el cambio
             };
 
+            if (accion.name === "Mantenimiento") {
+                payload.comentario = numFormula;
+            } else {
+                payload.numero_formula = numFormula;
+                payload.no_formula = numFormula;
+            }
+
+            if (accion.name === "Paro" && paroSeleccionado) {
+                payload.paro = `${paroSeleccionado.num} - ${paroSeleccionado.description}`;
+            }
+            // 🟣 Si estamos editando una acción existente
+            if (accionEnEdicion && accionEnEdicion.id) {
+                const res = await axios.put(
+                    `/reporte-proceso-extrude/accion/${accionEnEdicion.id}`,
+                    payload
+                );
+                toast.success(`✏️ Acción actualizada: ${accion.name}`);
+                setAccionActiva(accion.name);
+                setAccionId(res.data.accion.id);
+                setAccionEnEdicion(null); // salir del modo edición
+                if (onUpdateAccion) onUpdateAccion();
+                return;
+            }
+
+            // 🔹 Si no se está editando, crear una nueva acción
             const res = await axios.post(
                 "/reporte-proceso-extrude/accion",
                 payload
             );
 
-            setAccionActiva(accion.name);
-            setAccionId(res.data.accion.id);
+            // ✅ Validamos que el backend devuelva un ID válido
+            if (res.data?.accion?.id) {
+                setAccionActiva(accion.name);
+                setAccionId(res.data.accion.id);
+            } else {
+                console.warn(
+                    "⚠️ No se recibió un ID válido de acción:",
+                    res.data
+                );
+            }
 
-            toast.success(`🚀 ${accion.name} iniciada`);
+            // 🔹 Actualizamos el padre si aplica
+            if (numFormula && onFormulaChange) {
+                onFormulaChange(numFormula);
+            }
+
+            if (onUltimaAccion) {
+                onUltimaAccion(res.data.accion);
+            }
+
+            toast.success(
+                `✅ ${accion.name} ${
+                    paroSeleccionado ? `(${paroSeleccionado.description})` : ""
+                } iniciada por ${operadorNombre}`
+            );
         } catch (error) {
-            console.error(error);
-            toast.error("❌ Error al iniciar acción.");
+            console.error("Error al registrar acción:", error);
+            toast.error("❌ Error al registrar la acción.");
         }
     };
-    // ------------------------------------------------
-    // 🟣 DIALOGO DE KILOS: cuando se confirma:
-    const confirmarKilos = () => {
-        if (!kilosIngresados.trim()) {
-            toast.warn("⚠ Ingresa los kilos antes de continuar.");
-            return;
-        }
 
-        setOpenKilosDialog(false); // 👈 SE CIERRA AQUÍ
-        cerrarAccionAnteriorConKilos();
-    };
     // 🟢 Manejadores de los diálogos
     const handleSelectParo = (paro) => {
         if (paro.id === "4" && paro.tipo_paro) {
@@ -269,6 +270,7 @@ export default function Operaciones({
             setOpenParoDialog(false);
         }
     };
+
     const handleSelectSubParo = (subParo) => {
         registrarAccion({ name: "Paro" }, subParo);
         setOpenSubParoDialog(false);
@@ -280,17 +282,10 @@ export default function Operaciones({
             toast.warn("⚠️ Ingresa un número de fórmula antes de continuar.");
             return;
         }
-
         if (accionSeleccionada) {
             registrarAccion(accionSeleccionada, null, numeroFormula);
-            setFormulaActual(numeroFormula); // 🔥 GUARDA LA FORMULA ACTUAL
+            setFormulaActual(numeroFormula);
         }
-
-        // 🔥 Cierra el diálogo al confirmar
-        setOpenFormulaDialog(false);
-
-        // 🔥 Limpia el input para futuros ingresos
-        setNumeroFormula("");
     };
 
     const handleConfirmMantenimiento = (comentario) => {
@@ -343,6 +338,14 @@ export default function Operaciones({
                             setOpenMantenimientoDialog(true);
                         } else if (operacion.name === "Limpieza") {
                             registrarAccion(operacion, null, null);
+                        } else if (operacion.name === "Formula en Muestra") {
+                            if (!formulaActual) {
+                                toast.warn(
+                                    "⚠️ No hay una fórmula activa en curso."
+                                );
+                                return;
+                            }
+                            registrarAccion(operacion, null, formulaActual);
                         } else {
                             setAccionSeleccionada(operacion);
                             setOpenFormulaDialog(true);
@@ -381,13 +384,6 @@ export default function Operaciones({
                     );
                 })}
             </div>
-            <DialogKilos
-                open={openKilosDialog}
-                kilos={kilosIngresados}
-                setKilos={setKilosIngresados}
-                onClose={() => setOpenKilosDialog(false)}
-                onConfirm={confirmarKilos}
-            />
 
             {/* Diálogos */}
             <DialogFormula
