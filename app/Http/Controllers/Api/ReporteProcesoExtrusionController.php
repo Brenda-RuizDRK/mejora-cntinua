@@ -46,7 +46,7 @@ class ReporteProcesoExtrusionController extends Controller
         'fecha' => 'required|string',
         'hora' => 'required|string',
         'formulas_totales' => 'nullable|string',
-        'kg_formula' => 'nullable|numeric',
+        'kilos' => 'nullable|numeric',
         'nombre_operador' => 'nullable|string',
         'nom_supervisor' => 'nullable|string',
     ]);
@@ -136,6 +136,7 @@ $accion = ReporteProcesoExtrudeAccion::findOrFail($id);
             'fecha_final' => $ahora->format('d/m/Y'),
             'hora_final' => $ahora->format('H:i:s'),
             'status' => 'Desactivado', // 🔴 Se marca como finalizada
+            'kilos' => $request->input('kilos', $accion->kilos),
         ]);
 
         return response()->json([
