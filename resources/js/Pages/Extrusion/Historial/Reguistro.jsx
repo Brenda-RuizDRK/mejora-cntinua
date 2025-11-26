@@ -162,6 +162,7 @@ export default function Reguistro() {
                                 <th className="border px-3 py-2">
                                     No. Fórmula
                                 </th>
+                                <th className="border px-3 py-2">Kilos</th>
                                 <th className="border px-3 py-2">
                                     Fecha Inicio
                                 </th>
@@ -222,6 +223,9 @@ export default function Reguistro() {
                                         </td>
                                         <td className="border px-3 py-2">
                                             {accion.no_formula || "-"}
+                                        </td>{" "}
+                                        <td className="border px-3 py-2">
+                                            {accion.kilos || "-"}
                                         </td>
                                         <td className="border px-3 py-2">
                                             {accion.fecha_inicio}

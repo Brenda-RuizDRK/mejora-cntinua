@@ -21,11 +21,7 @@ import DialogKilos from "@/Components/Extrusores/Dialogs/DialogKilos";
 export default function Operaciones({
     reporteId,
     onFormulaChange,
-    onUltimaAccion,
     accionActualFormula,
-    accionEnEdicion, // 🟣 NUEVO
-    setAccionEnEdicion, // 🟣 NUEVO
-    onUpdateAccion, // 🟣 NUEVO
 }) {
     const { auth } = usePage().props;
     const operadorNombre = auth?.user?.nombre || "Desconocido";
@@ -114,8 +110,6 @@ export default function Operaciones({
     const [kilosIngresados, setKilosIngresados] = useState("");
     const [accionPendiente, setAccionPendiente] = useState(null);
 
-    // Si el padre manda una acción actual, márcala al montar
-    // 🔹 Si el padre manda una acción actual, márcala al montar y sincroniza con backend
     useEffect(() => {
         if (accionActualFormula) {
             const encontrada = operacionesIniciales.find(
@@ -124,8 +118,6 @@ export default function Operaciones({
             if (encontrada) {
                 setAccionActiva(encontrada.name);
             }
-
-            // 🆕 Sincroniza con la acción real desde el backend
             const obtenerUltimaAccion = async () => {
                 try {
                     const res = await axios.get(
@@ -173,12 +165,8 @@ export default function Operaciones({
             toast.success(
                 `✔ Acción ${accionActiva} finalizada (${kilosIngresados} kg)`
             );
-
-            // Limpiar estado
             setAccionActiva(null);
             setAccionId(null);
-
-            // 🔥 Ahora sí iniciamos la acción nueva que el usuario había seleccionado:
             if (accionPendiente) {
                 registrarAccion(
                     accionPendiente.operacion,
@@ -200,29 +188,23 @@ export default function Operaciones({
         numFormula = null,
         forzarInicio = false
     ) => {
-        // --- Sólo cerramos si NO viene desde cerrarAccionAnteriorConKilos ---
         if (
             !forzarInicio &&
             accionActiva &&
             accionActiva !== accion.name &&
             accionId
         ) {
-            // Guardamos qué acción el usuario quiere iniciar
             setAccionPendiente({
                 operacion: accion,
                 paro: paroSeleccionado,
                 formula: numFormula,
             });
-
-            // Abrimos dialog de kilos ANTES de iniciar nueva acción
             setOpenKilosDialog(true);
             return;
         }
-
         // ---------------------------------------
         // AQUÍ INICIA LA ACCIÓN NUEVA NORMALMENTE
         // ---------------------------------------
-
         try {
             const ahora = new Date();
 
@@ -266,7 +248,6 @@ export default function Operaciones({
             toast.error("❌ Error al iniciar acción.");
         }
     };
-
     // ------------------------------------------------
     // 🟣 DIALOGO DE KILOS: cuando se confirma:
     const confirmarKilos = () => {
@@ -278,7 +259,6 @@ export default function Operaciones({
         setOpenKilosDialog(false); // 👈 SE CIERRA AQUÍ
         cerrarAccionAnteriorConKilos();
     };
-
     // 🟢 Manejadores de los diálogos
     const handleSelectParo = (paro) => {
         if (paro.id === "4" && paro.tipo_paro) {
@@ -289,7 +269,6 @@ export default function Operaciones({
             setOpenParoDialog(false);
         }
     };
-
     const handleSelectSubParo = (subParo) => {
         registrarAccion({ name: "Paro" }, subParo);
         setOpenSubParoDialog(false);
