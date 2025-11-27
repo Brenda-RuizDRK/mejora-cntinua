@@ -10,26 +10,22 @@ import {
 
 export default function DialogKilos({
     open,
-    onClose,
-    onConfirm,
     kilos,
     setKilos,
+    onClose,
+    onConfirm,
 }) {
-    const handleConfirm = () => {
-        if (!kilos || kilos <= 0) return;
-        onConfirm(); // ✅ ya NO envía parámetros
-    };
-
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Registrar kilos terminados</DialogTitle>
+            <DialogTitle>Capturar kilos procesados</DialogTitle>
 
             <DialogContent>
                 <TextField
                     autoFocus
-                    fullWidth
+                    margin="dense"
+                    label="Kilos"
                     type="number"
-                    label="Kilos producidos"
+                    fullWidth
                     value={kilos}
                     onChange={(e) => setKilos(e.target.value)}
                 />
@@ -37,7 +33,7 @@ export default function DialogKilos({
 
             <DialogActions>
                 <Button onClick={onClose}>Cancelar</Button>
-                <Button variant="contained" onClick={handleConfirm}>
+                <Button variant="contained" onClick={onConfirm}>
                     Guardar
                 </Button>
             </DialogActions>

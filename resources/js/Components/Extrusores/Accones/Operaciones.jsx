@@ -1,36 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { usePage } from "@inertiajs/react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "../../../../css/Compnents/Extrude.css";
-import DialogFormula from "@/Components/Extrusores/Dialogs/DialogFormula";
-import DialogParo from "@/Components/Extrusores/Dialogs/DialogParo";
-import DialogSubParo from "@/Components/Extrusores/Dialogs/DialogSubParo";
-import DialogMantenimiento from "@/Components/Extrusores/Dialogs/DialogMantenimiento";
-
 import Paro from "@/Components/Acciones/Paro";
+import Extrusor from "@/Components/Acciones/Extrusor";
+import OperacionesIniciales from "@/Components/Acciones/OperacionesIniciales";
+import DialogFormula from "@/Components/Extrusores/Dialogs/DialogFormula";
 import { FaTools } from "react-icons/fa";
 import { FaDroplet } from "react-icons/fa6";
-import Extrusor from "@/Components/Acciones/Extrusor";
 import { IoIosTimer } from "react-icons/io";
 import { FaGears } from "react-icons/fa6";
 import { GiChemicalDrop } from "react-icons/gi";
 import { RiTestTubeFill } from "react-icons/ri";
-import DialogConfirmarFinProceso from "@/Components/Extrusores/Dialogs/DialogConfirmarFinProceso";
+import DialogKilos from "@/Components/Extrusores/Dialogs/DialogKilos";
+import DialogParo from "@/Components/Extrusores/Dialogs/DialogParo";
 
-export default function Operaciones({
-    reporteId,
-    onFormulaChange,
-    onUltimaAccion,
-    accionActualFormula,
-    accionEnEdicion, // 🟣 NUEVO
-    setAccionEnEdicion, // 🟣 NUEVO
-    onUpdateAccion, // 🟣 NUEVO
-}) {
-    const { auth } = usePage().props;
-    const operadorNombre = auth?.user?.nombre || "Desconocido";
+export default function Operaciones({ accionActualFormula }) {
+    const { props } = usePage();
+    const reporteId = props.reporte?.id;
 
-    const operacionesIniciales = [
+    // ⭐ Operaciones con tu mismo diseño
+    const [operacionesIniciales] = useState([
         {
             id: 1,
             name: "Proceso Extrusión",
@@ -95,330 +86,297 @@ export default function Operaciones({
             bgColor: "#FECCE6",
             icons: <GiChemicalDrop className="text-[70px]" />,
         },
-    ];
+    ]);
 
-    const [accionActiva, setAccionActiva] = useState(null);
-    const [accionId, setAccionId] = useState(null);
-    const [openParoDialog, setOpenParoDialog] = useState(false);
-    const [openSubParoDialog, setOpenSubParoDialog] = useState(false);
-    const [subParos, setSubParos] = useState([]);
-    const [openFormulaDialog, setOpenFormulaDialog] = useState(false);
+    const [operacionSeleccionada, setOperacionSeleccionada] = useState(null);
+    const [openDialogFormula, setOpenDialogFormula] = useState(false);
     const [numeroFormula, setNumeroFormula] = useState("");
-    const [accionSeleccionada, setAccionSeleccionada] = useState(null);
-    const [openMantenimientoDialog, setOpenMantenimientoDialog] =
-        useState(false);
-    const [formulaActual, setFormulaActual] = useState("");
-    const [openDialogFinProceso, setOpenDialogFinProceso] = useState(false);
+    const [openDialogKilos, setOpenDialogKilos] = useState(false);
+    const [kilos, setKilos] = useState("");
+    const [accionParaCerrar, setAccionParaCerrar] = useState(null);
+    const [accionPendiente, setAccionPendiente] = useState(null);
+    const [openDialogParo, setOpenDialogParo] = useState(false);
+    const [openDialogSubParo, setOpenDialogSubParo] = useState(false);
+    const [paroSeleccionado, setParoSeleccionado] = useState(null);
 
-    // Si el padre manda una acción actual, márcala al montar
-    // 🔹 Si el padre manda una acción actual, márcala al montar y sincroniza con backend
-    useEffect(() => {
-        if (accionActualFormula) {
-            const encontrada = operacionesIniciales.find(
-                (op) => op.name === accionActualFormula
-            );
-            if (encontrada) {
-                setAccionActiva(encontrada.name);
-            }
-
-            // 🆕 Sincroniza con la acción real desde el backend
-            const obtenerUltimaAccion = async () => {
-                try {
-                    const res = await axios.get(
-                        `/reporte-proceso-extrude/${reporteId}/ultima-accion`
-                    );
-                    if (res.data?.accion) {
-                        setAccionActiva(res.data.accion.accion);
-                        setAccionId(res.data.accion.id); // ✅ guarda el ID real
-                    }
-                } catch (err) {
-                    console.error("Error al sincronizar última acción:", err);
-                }
-            };
-            obtenerUltimaAccion();
-        }
-    }, [accionActualFormula]);
-
-    const registrarAccion = async (
-        accion,
-        paroSeleccionado = null,
-        numFormula = null
-    ) => {
+    // ⭐ CREA LA ACCIÓN EN EL BACKEND (incluye no_formula)
+    const crearAccion = async (nombreAccion, numeroFormula) => {
         try {
-            // ✅ Si hay una acción activa distinta, la cerramos primero
-            if (accionActiva && accionActiva !== accion.name && accionId) {
-                try {
-                    await axios.put(
-                        `/reporte-proceso-extrude/accion/${accionId}/cerrar`
-                    );
-                    toast.info(`🕓 ${accionActiva} finalizada.`);
-                } catch (cerrarError) {
-                    console.warn(
-                        "⚠️ No se pudo cerrar la acción anterior:",
-                        cerrarError
-                    );
-                }
-            }
-
-            // ✅ Si se hace clic de nuevo sobre la misma acción, la cerramos manualmente
-            if (accionActiva === accion.name && accionId) {
-                await axios.put(
-                    `/reporte-proceso-extrude/accion/${accionId}/cerrar`
-                );
-                setAccionActiva(null);
-                setAccionId(null);
-                toast.info(`🕓 ${accion.name} finalizada.`);
-                return;
-            }
-
-            // 🔹 Preparamos los datos de inicio
-            const ahora = new Date();
-            const fecha_inicio = ahora
-                .toLocaleDateString("es-MX", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                })
-                .replace(/\//g, "/");
-
-            const hora_inicio = ahora.toLocaleTimeString("es-MX", {
-                hour12: false,
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-            });
+            const now = new Date();
 
             const payload = {
                 reporte_proceso_id: reporteId,
-                fecha_inicio,
-                hora_inicio,
-                fecha_final: null,
-                hora_final: null,
-                accion: accion.name,
-                operador: operadorNombre,
-                status: accion.name === "Paro" ? "Paro" : "Activado", // ✅ aquí el cambio
+                accion: nombreAccion,
+                fecha_inicio: now.toLocaleDateString("es-MX"),
+                hora_inicio: now.toLocaleTimeString("es-MX"),
+                status: "Activo",
+                no_formula: numeroFormula, // ⭐ NUEVO
             };
 
-            if (accion.name === "Mantenimiento") {
-                payload.comentario = numFormula;
-            } else {
-                payload.numero_formula = numFormula;
-                payload.no_formula = numFormula;
-            }
-
-            if (accion.name === "Paro" && paroSeleccionado) {
-                payload.paro = `${paroSeleccionado.num} - ${paroSeleccionado.description}`;
-            }
-            // 🟣 Si estamos editando una acción existente
-            if (accionEnEdicion && accionEnEdicion.id) {
-                const res = await axios.put(
-                    `/reporte-proceso-extrude/accion/${accionEnEdicion.id}`,
-                    payload
-                );
-                toast.success(`✏️ Acción actualizada: ${accion.name}`);
-                setAccionActiva(accion.name);
-                setAccionId(res.data.accion.id);
-                setAccionEnEdicion(null); // salir del modo edición
-                if (onUpdateAccion) onUpdateAccion();
-                return;
-            }
-
-            // 🔹 Si no se está editando, crear una nueva acción
             const res = await axios.post(
                 "/reporte-proceso-extrude/accion",
                 payload
             );
 
-            // ✅ Validamos que el backend devuelva un ID válido
-            if (res.data?.accion?.id) {
-                setAccionActiva(accion.name);
-                setAccionId(res.data.accion.id);
-            } else {
-                console.warn(
-                    "⚠️ No se recibió un ID válido de acción:",
-                    res.data
+            toast.success(`Acción "${nombreAccion}" iniciada`);
+            console.log("Acción creada:", res.data);
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al crear acción");
+        }
+    };
+
+    const operacionesConFormula = [
+        "Proceso Extrusión",
+        "Procesos",
+        "Ajustes de Producción",
+        "Formula en Muestra",
+        "Muestra",
+    ];
+    const ACCIONES_CON_KILOS = [
+        "Proceso Extrusión",
+        "Procesos",
+        "Ajustes de Producción",
+        "Formula en Muestra",
+        "Muestra",
+    ];
+
+    // ⭐ Cuando seleccionas operación
+    const handleSelectOperacion = async (op) => {
+        setOperacionSeleccionada(op);
+
+        try {
+            // ✔ Obtener acción actual
+            const resp = await axios.get(
+                `/reporte-proceso-extrude/${reporteId}/ultima-accion`
+            );
+
+            const accionActiva = resp.data.accion;
+            if (accionActiva && accionActiva.accion === op.name) {
+                console.log("REPETIDA — cerrar e iniciar nueva");
+
+                // ⭐ Si esta acción requiere fórmula → pedirla de nuevo
+                if (operacionesConFormula.includes(op.name)) {
+                    setOperacionSeleccionada(op);
+                    setOpenDialogFormula(true);
+                    return;
+                }
+
+                await cerrarAccionActualYReiniciar(accionActiva, op.name);
+                return;
+            }
+        } catch (e) {
+            console.error("Error obteniendo acción activa", e);
+        }
+
+        // ⭐ Si es PARO → abrir el diálogo de selección de paro
+        if (op.name === "Paro") {
+            setOpenDialogParo(true);
+            return;
+        }
+
+        // ⭐ Si requiere fórmula
+        if (operacionesConFormula.includes(op.name)) {
+            setOpenDialogFormula(true);
+        } else {
+            handleIniciarAccion(op.name, null);
+        }
+    };
+
+    const cerrarAccionActualYReiniciar = async (accionActiva, nombreAccion) => {
+        const requiereKilos = ACCIONES_CON_KILOS.includes(accionActiva.accion);
+
+        // ✔ Si esta acción requiere kilos → abrir diálogo y luego iniciar nueva
+        if (requiereKilos) {
+            setAccionParaCerrar(accionActiva);
+
+            // Guardas acción pendiente con la MISMA acción de origen
+            setAccionPendiente({
+                accion: nombreAccion,
+                numeroFormula: accionActiva.no_formula ?? null,
+            });
+
+            setOpenDialogKilos(true);
+            return;
+        }
+
+        // ✔ Si NO requiere kilos → cerrar directo e iniciar la nueva
+        await axios.put(
+            `/reporte-proceso-extrude/accion/${accionActiva.id}/cerrar`
+        );
+
+        iniciarNuevaAccion(nombreAccion, accionActiva.no_formula ?? null);
+    };
+
+    // ⭐ Confirmar fórmula → crear acción
+    const confirmarFormula = () => {
+        if (!numeroFormula.trim()) {
+            toast.warning("Ingresa el número de fórmula");
+            return;
+        }
+
+        handleIniciarAccion(operacionSeleccionada.name, numeroFormula);
+
+        setOpenDialogFormula(false);
+        setNumeroFormula("");
+    };
+
+    const handleIniciarAccion = async (nuevaAccion, numeroFormula = null) => {
+        try {
+            const resp = await axios.get(
+                `/reporte-proceso-extrude/${reporteId}/ultima-accion`
+            );
+            const accionActiva = resp.data.accion;
+
+            if (accionActiva) {
+                const requiereKilos = ACCIONES_CON_KILOS.includes(
+                    accionActiva.accion
+                );
+
+                if (requiereKilos) {
+                    setAccionParaCerrar(accionActiva);
+
+                    // ⭐ Guardar también la fórmula
+                    setAccionPendiente({
+                        accion: nuevaAccion,
+                        numeroFormula,
+                    });
+
+                    setOpenDialogKilos(true);
+                    return;
+                } else {
+                    await axios.put(
+                        `/reporte-proceso-extrude/accion/${accionActiva.id}/cerrar`
+                    );
+                }
+            }
+
+            iniciarNuevaAccion(nuevaAccion, numeroFormula);
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al cambiar de acción.");
+        }
+    };
+
+    const iniciarNuevaAccion = async (
+        accion,
+        numeroFormula = null,
+        paro = null
+    ) => {
+        const ahora = new Date();
+
+        await axios.post("/reporte-proceso-extrude/accion", {
+            reporte_proceso_id: reporteId,
+            accion,
+            fecha_inicio: ahora.toLocaleDateString("es-MX"),
+            hora_inicio: ahora.toLocaleTimeString("es-MX"),
+            no_formula: numeroFormula,
+            paro: paro, // ⭐ Nuevo campo
+        });
+
+        toast.success(`Acción "${accion}" iniciada`);
+    };
+
+    const cargarAcciones = async () => {
+        try {
+            await axios.get(`/reporte-proceso-extrude/${reporteId}/acciones`);
+        } catch (error) {
+            console.error("Error al cargar acciones", error);
+        }
+    };
+    const handleConfirmarKilos = async () => {
+        try {
+            if (!accionParaCerrar) return;
+
+            await axios.put(
+                `/reporte-proceso-extrude/accion/${accionParaCerrar.id}/cerrar`,
+                {
+                    kilos: kilos,
+                }
+            );
+
+            setOpenDialogKilos(false);
+
+            // ⭐ iniciar acción pendiente con su fórmula correcta
+            if (accionPendiente) {
+                iniciarNuevaAccion(
+                    accionPendiente.accion,
+                    accionPendiente.numeroFormula
                 );
             }
 
-            // 🔹 Actualizamos el padre si aplica
-            if (numFormula && onFormulaChange) {
-                onFormulaChange(numFormula);
-            }
-
-            if (onUltimaAccion) {
-                onUltimaAccion(res.data.accion);
-            }
-
-            toast.success(
-                `✅ ${accion.name} ${
-                    paroSeleccionado ? `(${paroSeleccionado.description})` : ""
-                } iniciada por ${operadorNombre}`
-            );
-        } catch (error) {
-            console.error("Error al registrar acción:", error);
-            toast.error("❌ Error al registrar la acción.");
-        }
-    };
-
-    // 🟢 Manejadores de los diálogos
-    const handleSelectParo = (paro) => {
-        if (paro.id === "4" && paro.tipo_paro) {
-            setSubParos(paro.tipo_paro);
-            setOpenSubParoDialog(true);
-        } else {
-            registrarAccion({ name: "Paro" }, paro);
-            setOpenParoDialog(false);
-        }
-    };
-
-    const handleSelectSubParo = (subParo) => {
-        registrarAccion({ name: "Paro" }, subParo);
-        setOpenSubParoDialog(false);
-        setOpenParoDialog(false);
-    };
-
-    const handleConfirmFormula = () => {
-        if (!numeroFormula.trim()) {
-            toast.warn("⚠️ Ingresa un número de fórmula antes de continuar.");
-            return;
-        }
-        if (accionSeleccionada) {
-            registrarAccion(accionSeleccionada, null, numeroFormula);
-            setFormulaActual(numeroFormula);
-        }
-    };
-
-    const handleConfirmMantenimiento = (comentario) => {
-        if (accionSeleccionada) {
-            registrarAccion(accionSeleccionada, null, comentario);
-        }
-        setOpenMantenimientoDialog(false);
-    };
-
-    useEffect(() => {
-        if (onFormulaChange) setFormulaActual(onFormulaChange);
-    }, [onFormulaChange]);
-
-    const finalizarProceso = async () => {
-        try {
-            const res = await axios.put(
-                `/reporte-proceso-extrude/${reporteId}/finalizar`
-            );
-
-            if (res.data.success) {
-                toast.success("✅ Proceso finalizado correctamente");
-                window.location.href = "/";
-            } else {
-                toast.error("⚠️ No se pudo finalizar el proceso");
-            }
+            setKilos("");
+            setAccionPendiente(null);
+            setAccionParaCerrar(null);
         } catch (error) {
             console.error(error);
-            toast.error("❌ Error al finalizar el proceso");
-        } finally {
-            setOpenDialogFinProceso(false);
+            toast.error("Error al guardar kilos.");
         }
+    };
+    const handleSelectParo = (paro) => {
+        setParoSeleccionado(paro);
+        setOpenDialogParo(false);
+
+        // ⭐ Si el paro tiene sub-paros → abrir segundo diálogo
+        if (paro.tipo_paro) {
+            setOpenDialogSubParo(true);
+        } else {
+            // ⭐ Si NO tiene subparos → iniciar acción directo
+            iniciarNuevaAccion(
+                "Paro",
+                null,
+                `${paro.num} - ${paro.description}`
+            );
+        }
+    };
+    const handleSelectSubParo = (sub) => {
+        setOpenDialogSubParo(false);
+
+        const paroTexto = `${paroSeleccionado.num}-${paroSeleccionado.description} / ${sub.num}-${sub.description}`;
+
+        iniciarNuevaAccion("Paro", null, paroTexto);
     };
 
     return (
         <div>
-            {/* 🔘 Botones de acciones */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 ">
-                {operacionesIniciales.map((operacion) => {
-                    const esActiva =
-                        accionActiva === operacion.name ||
-                        accionActualFormula === operacion.name; // ✅ activa si coincide con ultimaAccion
-
-                    const hayActiva = !!accionActiva;
-
-                    const handleClick = () => {
-                        if (operacion.name === "Paro") {
-                            setOpenParoDialog(true);
-                        } else if (operacion.name === "Mantenimiento") {
-                            setAccionSeleccionada(operacion);
-                            setOpenMantenimientoDialog(true);
-                        } else if (operacion.name === "Limpieza") {
-                            registrarAccion(operacion, null, null);
-                        } else if (operacion.name === "Formula en Muestra") {
-                            if (!formulaActual) {
-                                toast.warn(
-                                    "⚠️ No hay una fórmula activa en curso."
-                                );
-                                return;
-                            }
-                            registrarAccion(operacion, null, formulaActual);
-                        } else {
-                            setAccionSeleccionada(operacion);
-                            setOpenFormulaDialog(true);
-                        }
-                    };
-
-                    return (
-                        <div
-                            key={operacion.id}
-                            onClick={handleClick}
-                            className={`relative cursor-pointer rounded-2xl shadow-md overflow-hidden transition-transform transform hover:scale-105 w-[200px] ${
-                                esActiva
-                                    ? "ring-4 ring-green-700 brightness-110"
-                                    : ""
-                            }`}
-                            style={{
-                                backgroundColor: esActiva
-                                    ? operacion.bgColor
-                                    : "#d1d5db",
-                                color: esActiva ? operacion.color : "#555",
-                            }}
-                        >
-                            <div className="absolute inset-0 flex items-center justify-start opacity-40 pl-0 left-[-8%]">
-                                <div>{operacion.icons}</div>
-                            </div>
-
-                            <div className="relative flex flex-col sm:flex-row items-center sm:justify-between text-center sm:text-left px-2 py-2">
-                                <div className="text-[30px] sm:text-[33px] lg:text-[40px] font-extrabold tracking-wide contorno text-[#f2f9fd] leading-tight">
-                                    {operacion.abreviatura}
-                                </div>
-                                <div className="text-[16px] sm:text-[18px] font-bold leading-tight mt-1 sm:mt-0">
-                                    {operacion.name.toUpperCase()}
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {/* Diálogos */}
-            <DialogFormula
-                open={openFormulaDialog}
-                numeroFormula={numeroFormula}
-                setNumeroFormula={setNumeroFormula}
-                onClose={() => setOpenFormulaDialog(false)}
-                onConfirm={handleConfirmFormula}
+            {/* Tarjetas con tu diseño */}
+            <OperacionesIniciales
+                operaciones={operacionesIniciales}
+                onSelectOperacion={handleSelectOperacion}
             />
 
+            {/* Dialog para capturar número de fórmula */}
+            <DialogFormula
+                open={openDialogFormula}
+                numeroFormula={numeroFormula}
+                setNumeroFormula={setNumeroFormula}
+                onClose={() => setOpenDialogFormula(false)}
+                onConfirm={confirmarFormula}
+            />
+            <DialogKilos
+                open={openDialogKilos}
+                kilos={kilos}
+                setKilos={setKilos}
+                onClose={() => setOpenDialogKilos(false)}
+                onConfirm={handleConfirmarKilos}
+            />
+            {/* Selección de PARO */}
             <DialogParo
-                open={openParoDialog}
-                onClose={() => setOpenParoDialog(false)}
+                open={openDialogParo}
+                onClose={() => setOpenDialogParo(false)}
                 onSelectParo={handleSelectParo}
             />
 
-            <DialogSubParo
-                open={openSubParoDialog}
-                subParos={subParos}
-                onClose={() => setOpenSubParoDialog(false)}
-                onSelectSubParo={handleSelectSubParo}
-            />
+            {/* Selección de SUB PARO */}
+            {paroSeleccionado?.tipo_paro && (
+                <DialogParo
+                    open={openDialogSubParo}
+                    onClose={() => setOpenDialogSubParo(false)}
+                    onSelectParo={handleSelectSubParo}
+                    paros={paroSeleccionado.tipo_paro} // ⭐ IMPORTANTE
+                />
+            )}
 
-            <DialogMantenimiento
-                open={openMantenimientoDialog}
-                onClose={() => setOpenMantenimientoDialog(false)}
-                onConfirm={handleConfirmMantenimiento}
-            />
-            <DialogConfirmarFinProceso
-                open={openDialogFinProceso}
-                onClose={() => setOpenDialogFinProceso(false)}
-                onConfirm={finalizarProceso}
-            />
-
-            {/* 🟣 Botón para finalizar el proceso */}
             <div className="mt-6 flex justify-center">
                 <button
                     onClick={() => setOpenDialogFinProceso(true)}

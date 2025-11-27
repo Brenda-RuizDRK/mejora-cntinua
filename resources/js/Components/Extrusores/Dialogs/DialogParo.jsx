@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import ParosExtrucion from "@/database/Extrusion/Paros";
 
-export default function DialogParo({ open, onClose, onSelectParo }) {
+export default function DialogParo({ open, onClose, onSelectParo, paros }) {
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
             <DialogTitle className="h-2">
@@ -17,7 +17,7 @@ export default function DialogParo({ open, onClose, onSelectParo }) {
             </DialogTitle>
             <DialogContent dividers>
                 <div className="flex flex-wrap gap-2 items-center justify-between w-full">
-                    {ParosExtrucion.map((paro, index) => (
+                    {(paros ?? ParosExtrucion).map((paro, index) => (
                         <button
                             key={paro.id}
                             onClick={() => onSelectParo(paro)}
