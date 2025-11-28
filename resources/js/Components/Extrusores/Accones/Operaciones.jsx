@@ -15,6 +15,8 @@ import { GiChemicalDrop } from "react-icons/gi";
 import { RiTestTubeFill } from "react-icons/ri";
 import DialogKilos from "@/Components/Extrusores/Dialogs/DialogKilos";
 import DialogParo from "@/Components/Extrusores/Dialogs/DialogParo";
+import DialogConfirmarFinProceso from "@/Components/Extrusores/Dialogs/DialogConfirmarFinProceso";
+import { router } from "@inertiajs/react";
 
 export default function Operaciones({ accionActualFormula }) {
     const { props } = usePage();
@@ -98,6 +100,7 @@ export default function Operaciones({ accionActualFormula }) {
     const [openDialogParo, setOpenDialogParo] = useState(false);
     const [openDialogSubParo, setOpenDialogSubParo] = useState(false);
     const [paroSeleccionado, setParoSeleccionado] = useState(null);
+    const [openDialogFinProceso, setOpenDialogFinProceso] = useState(false);
 
     // ⭐ CREA LA ACCIÓN EN EL BACKEND (incluye no_formula)
     const crearAccion = async (nombreAccion, numeroFormula) => {
@@ -298,11 +301,24 @@ export default function Operaciones({ accionActualFormula }) {
             setOpenDialogKilos(false);
 
             // ⭐ iniciar acción pendiente con su fórmula correcta
-            if (accionPendiente) {
-                iniciarNuevaAccion(
-                    accionPendiente.accion,
-                    accionPendiente.numeroFormula
+            // ⭐ Si esta confirmación viene desde "finalizar proceso"
+            if (accionPendiente && accionPendiente.accion === null) {
+                // Solo finaliza el reporte
+                await axios.put(
+                    `/reporte-proceso-extrude/${reporteId}/finalizar`
                 );
+
+                toast.success("Proceso finalizado correctamente.");
+                setOpenDialogKilos(false);
+                setOpenDialogFinProceso(false);
+
+                setKilos("");
+                setAccionPendiente(null);
+                setAccionParaCerrar(null);
+
+                // ⭐ Redirigir
+                router.visit("/extrusion/54_2");
+                return;
             }
 
             setKilos("");
@@ -335,6 +351,46 @@ export default function Operaciones({ accionActualFormula }) {
         const paroTexto = `${paroSeleccionado.num}-${paroSeleccionado.description} / ${sub.num}-${sub.description}`;
 
         iniciarNuevaAccion("Paro", null, paroTexto);
+    };
+    const finalizarProceso = async () => {
+        try {
+            // 1️⃣ Obtener la última acción activa
+            const resp = await axios.get(
+                `/reporte-proceso-extrude/${reporteId}/ultima-accion`
+            );
+
+            const accionActiva = resp.data.accion;
+
+            // 2️⃣ Si existía una acción activa → cerrarla correctamente
+            if (accionActiva) {
+                const requiereKilos = ACCIONES_CON_KILOS.includes(
+                    accionActiva.accion
+                );
+
+                // ✔ Si requiere kilos → pedirlos antes de cerrar
+                if (requiereKilos) {
+                    setAccionParaCerrar(accionActiva);
+                    setAccionPendiente({ accion: null }); // No inicia nueva acción
+                    setOpenDialogKilos(true);
+                    return;
+                }
+
+                // ✔ Si NO requiere kilos → cerrarla directo
+                await axios.put(
+                    `/reporte-proceso-extrude/accion/${accionActiva.id}/cerrar`
+                );
+            }
+
+            // 3️⃣ Cambiar status del reporte
+            await axios.put(`/reporte-proceso-extrude/${reporteId}/finalizar`);
+
+            toast.success("Proceso finalizado correctamente.");
+            setOpenDialogFinProceso(false);
+            router.visit("/extrusion/54_2");
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al finalizar el proceso.");
+        }
     };
 
     return (
@@ -376,7 +432,11 @@ export default function Operaciones({ accionActualFormula }) {
                     paros={paroSeleccionado.tipo_paro} // ⭐ IMPORTANTE
                 />
             )}
-
+            <DialogConfirmarFinProceso
+                open={openDialogFinProceso}
+                onClose={() => setOpenDialogFinProceso(false)}
+                onConfirm={finalizarProceso}
+            />
             <div className="mt-6 flex justify-center">
                 <button
                     onClick={() => setOpenDialogFinProceso(true)}

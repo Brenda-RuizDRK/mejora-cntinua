@@ -257,20 +257,16 @@ public function productosEXT54()
 
 public function finalizarProceso($id)
 {
-    try {
-        $reporte = ReporteProcesoExtrude::findOrFail($id);
-        $reporte->update(['status' => 'Desactivado']);
+    $reporte = ReporteProcesoExtrude::findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'El proceso ha sido finalizado correctamente.',
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage(),
-        ], 500);
-    }
+    $reporte->update([
+        'status' => 'Desactivado',
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Proceso finalizado correctamente',
+    ]);
 }
 
 public function exportAcciones()
