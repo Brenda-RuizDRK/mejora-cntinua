@@ -204,7 +204,9 @@ public function indexAcciones()
                 'paro',
                 'no_formula',
                 'status',
-                'comentario'
+                'comentario',
+                'kilos'
+
             ]);
 
         return inertia('Extrusion/Historial/Reguistro', [

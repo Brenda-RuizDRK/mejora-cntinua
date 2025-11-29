@@ -173,6 +173,7 @@ export default function Reguistro() {
                                     Fecha Final
                                 </th>
                                 <th className="border px-3 py-2">Hora Final</th>
+                                <th className="border px-3 py-2">Kilos</th>
                                 <th className="border px-3 py-2">Estatus</th>
                             </tr>
                         </thead>
@@ -238,6 +239,9 @@ export default function Reguistro() {
                                         </td>
                                         <td className="border px-3 py-2">
                                             {accion.hora_final || "-"}
+                                        </td>
+                                        <td className="border px-3 py-2">
+                                            {accion.kilos || "-"}
                                         </td>
                                         <td className="border px-3 py-2">
                                             <span

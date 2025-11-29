@@ -102,33 +102,6 @@ export default function Operaciones({ accionActualFormula }) {
     const [paroSeleccionado, setParoSeleccionado] = useState(null);
     const [openDialogFinProceso, setOpenDialogFinProceso] = useState(false);
 
-    // ⭐ CREA LA ACCIÓN EN EL BACKEND (incluye no_formula)
-    const crearAccion = async (nombreAccion, numeroFormula) => {
-        try {
-            const now = new Date();
-
-            const payload = {
-                reporte_proceso_id: reporteId,
-                accion: nombreAccion,
-                fecha_inicio: now.toLocaleDateString("es-MX"),
-                hora_inicio: now.toLocaleTimeString("es-MX"),
-                status: "Activo",
-                no_formula: numeroFormula, // ⭐ NUEVO
-            };
-
-            const res = await axios.post(
-                "/reporte-proceso-extrude/accion",
-                payload
-            );
-
-            toast.success(`Acción "${nombreAccion}" iniciada`);
-            console.log("Acción creada:", res.data);
-        } catch (error) {
-            console.error(error);
-            toast.error("Error al crear acción");
-        }
-    };
-
     const operacionesConFormula = [
         "Proceso Extrusión",
         "Procesos",
@@ -149,16 +122,17 @@ export default function Operaciones({ accionActualFormula }) {
         setOperacionSeleccionada(op);
 
         try {
-            // ✔ Obtener acción actual
             const resp = await axios.get(
                 `/reporte-proceso-extrude/${reporteId}/ultima-accion`
             );
 
             const accionActiva = resp.data.accion;
+
+            console.log("🟢 ACCIÓN EN CURSO:", accionActiva); // <<--- AQUI
+
             if (accionActiva && accionActiva.accion === op.name) {
                 console.log("REPETIDA — cerrar e iniciar nueva");
 
-                // ⭐ Si esta acción requiere fórmula → pedirla de nuevo
                 if (operacionesConFormula.includes(op.name)) {
                     setOperacionSeleccionada(op);
                     setOpenDialogFormula(true);
@@ -280,13 +254,6 @@ export default function Operaciones({ accionActualFormula }) {
         toast.success(`Acción "${accion}" iniciada`);
     };
 
-    const cargarAcciones = async () => {
-        try {
-            await axios.get(`/reporte-proceso-extrude/${reporteId}/acciones`);
-        } catch (error) {
-            console.error("Error al cargar acciones", error);
-        }
-    };
     const handleConfirmarKilos = async () => {
         try {
             if (!accionParaCerrar) return;
@@ -300,8 +267,6 @@ export default function Operaciones({ accionActualFormula }) {
 
             setOpenDialogKilos(false);
 
-            // ⭐ iniciar acción pendiente con su fórmula correcta
-            // ⭐ Si esta confirmación viene desde "finalizar proceso"
             if (accionPendiente && accionPendiente.accion === null) {
                 // Solo finaliza el reporte
                 await axios.put(
