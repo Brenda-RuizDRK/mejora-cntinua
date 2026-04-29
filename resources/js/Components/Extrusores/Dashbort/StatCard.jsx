@@ -13,7 +13,7 @@ export default function StatCard({
             className={`rounded-xl shadow-sm p-5 flex justify-between items-center border ${borderColor} ${bgColor}`}
         >
             <div>
-                <p className="text-sm text-gray-500">{title}</p>
+                <p className="text-sm text-gray-600 font-semibold">{title}</p>
 
                 <h2 className={`text-3xl font-bold ${textColor}`}>
                     {value}

@@ -152,10 +152,10 @@ export default function Dashbot() {
 
             <div className="component">
                 {/* CONTENIDO */}
-                <div className="p-6">
+                <div className="p-3">
                     {/* TITULO SECCION */}
-                    <div className="mb-6">
-                        <h2 className="text-xl font-bold text-gray-800">
+                    <div className="mb-2">
+                        <h2 className="text-[25px] font-bold text-gray-800">
                             Sistema de Producción
                         </h2>
                         <p className="text-sm text-gray-500">

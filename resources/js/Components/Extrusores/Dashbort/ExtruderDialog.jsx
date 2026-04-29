@@ -97,10 +97,10 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
             }}
         >
             <DialogContent className="p-0">
-                <div className="p-8">
+                <div className="p-4">
                     {/* HEADER */}
-                    <div className="flex justify-between items-start border-b pb-5">
-                        <div>
+                    <div className="flex justify-between items-start border-b ">
+                        <div className="flex gap-7">
                             <h2 className="text-4xl font-bold text-gray-900">
                                 {extruder.name}
                             </h2>
