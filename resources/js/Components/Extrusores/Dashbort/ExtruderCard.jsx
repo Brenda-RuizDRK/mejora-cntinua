@@ -28,18 +28,27 @@ export default function ExtruderCard({ extruder, onClick }) {
 
             {/* INFO PRINCIPAL */}
             <div className="mt-3 space-y-1">
-                <p className="text-sm text-gray-500">Fórmula</p>
-                <p className="font-semibold text-gray-800">
-                    {extruder.formula}
-                </p>
+                <p className="text-[12px] text-gray-500 mt-2">Producto</p>
+                <p className="font-bold text-[#164864]">{extruder.product}</p>
 
-                <p className="text-sm text-gray-500 mt-2">Producto</p>
-                <p className="font-medium text-gray-700">{extruder.product}</p>
-
-                <p className="text-sm text-gray-500 mt-2">Producción</p>
-                <p className="font-bold text-blue-600">
-                    {extruder.production} ton
-                </p>
+                <div className="flex gap-2 items-center justify-between">
+                    <div>
+                        <p className="text-sm text-gray-500 text-[12px]">
+                            Fórmula
+                        </p>
+                        <p className="font-semibold text-gray-800">
+                            {extruder.formula}
+                        </p>
+                    </div>
+                    <div>
+                        <p className="text-sm text-gray-500 text-[12px] ">
+                            Kilos
+                        </p>
+                        <p className="font-bold text-blue-600">
+                            {extruder.production} Kg
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     );

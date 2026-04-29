@@ -124,62 +124,56 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                             <X size={28} />
                         </IconButton>
                     </div>
+                    <div className="flex gap-8 ">
+                        {/* STATS */}
+                        <div className="grid grid-cols-2 gap-4 mt-8">
+                            <div className="rounded-xl border border-blue-200 bg-blue-50 p-5">
+                                <p className="text-sm text-blue-600 flex items-center gap-2">
+                                    <Package size={16} />
+                                    Producción Actual
+                                </p>
+                                <h3 className="text-3xl font-bold mt-2">
+                                    {extruder.production} ton
+                                </h3>
+                            </div>
 
-                    {/* STATS */}
-                    <div className="grid grid-cols-4 gap-4 mt-8">
-                        <div className="rounded-xl border border-blue-200 bg-blue-50 p-5">
-                            <p className="text-sm text-blue-600 flex items-center gap-2">
-                                <Package size={16} />
-                                Producción Actual
-                            </p>
-                            <h3 className="text-3xl font-bold mt-2">
-                                {extruder.production} ton
+                            <div className="rounded-xl border border-orange-200 bg-orange-50 p-5">
+                                <p className="text-sm text-orange-600 flex items-center gap-2">
+                                    <Thermometer size={16} />
+                                    Temperatura
+                                </p>
+                                <h3 className="text-3xl font-bold mt-2">
+                                    152°C
+                                </h3>
+                            </div>
+                        </div>
+
+                        {/* FORMULA DETAILS */}
+                        <div className="mt-4 bg-white rounded-2xl border p-3 shadow-sm">
+                            <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                                <Activity size={22} />
+                                Detalles de Fórmula
                             </h3>
-                        </div>
 
-                        <div className="rounded-xl border border-orange-200 bg-orange-50 p-5">
-                            <p className="text-sm text-orange-600 flex items-center gap-2">
-                                <Thermometer size={16} />
-                                Temperatura
-                            </p>
-                            <h3 className="text-3xl font-bold mt-2">152°C</h3>
-                        </div>
-
-                        <div className="rounded-xl border border-green-200 bg-green-50 p-5">
-                            <p className="text-sm text-green-600 flex items-center gap-2">
-                                <Gauge size={16} />
-                                RPM
-                            </p>
-                            <h3 className="text-3xl font-bold mt-2">975</h3>
-                        </div>
-                    </div>
-
-                    {/* FORMULA DETAILS */}
-                    <div className="mt-8 bg-white rounded-2xl border p-6 shadow-sm">
-                        <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                            <Activity size={22} />
-                            Detalles de Fórmula
-                        </h3>
-
-                        <div className="grid grid-cols-2 gap-8">
-                            <div className="space-y-4 text-gray-700">
-                                <p>
-                                    <b>Código:</b> F-2023-X
-                                </p>
-                                <p>
-                                    <b>Tamaño de lote:</b> 1197 kg
-                                </p>
-                                <p>
-                                    <b>Tiempo de ciclo:</b> 48 min
-                                </p>
-                                <p>
-                                    <b>Presión:</b> 4 bar
-                                </p>
+                            <div className="grid grid-cols-1 gap-8">
+                                <div className="space-y-2 text-gray-700">
+                                    <p>
+                                        <b>Código:</b> F-2023-X
+                                    </p>
+                                    <p>
+                                        <b>Tamaño de lote:</b> 1197 kg
+                                    </p>
+                                    <p>
+                                        <b>Tiempo de ciclo:</b> 48 min
+                                    </p>
+                                    <p>
+                                        <b>Presión:</b> 4 bar
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* TIMELINE */}
                     {/* TIMELINE */}
                     <div className="mt-8 bg-white rounded-2xl border p-6 shadow-sm">
                         <h3 className="text-2xl font-bold mb-6">
@@ -203,7 +197,7 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                                     ].map((label, idx) => (
                                         <div
                                             key={idx}
-                                            className="h-12 border-b flex items-center px-3 text-sm font-medium text-gray-800"
+                                            className="h-6 border-b flex items-center px-3 text-sm font-medium text-gray-800"
                                         >
                                             {label}
                                         </div>
@@ -219,7 +213,7 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                                     {Array.from({ length: 8 }).map((_, idx) => (
                                         <div
                                             key={idx}
-                                            className="h-12 border-b border-gray-300"
+                                            className="h-6 border-b border-gray-300"
                                         ></div>
                                     ))}
 
@@ -238,7 +232,7 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                                     {/* BLOQUES */}
                                     {/* Proceso extrusión 1 */}
                                     <div
-                                        className="absolute top-0 h-[384px] bg-green-300 border border-green-400 flex flex-col justify-center items-center text-center font-medium text-sm"
+                                        className="absolute top-0 h-[220px] bg-green-300 border border-green-400 flex flex-col justify-center items-center text-center font-medium text-sm"
                                         style={{
                                             left: "0%",
                                             width: "28%",
@@ -251,10 +245,10 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                                     <div
                                         className="absolute bg-blue-200 border border-blue-300 flex flex-col justify-center items-center text-center font-medium text-sm"
                                         style={{
-                                            top: "144px",
+                                            top: "72px",
                                             left: "28%",
                                             width: "10%",
-                                            height: "250px",
+                                            height: "150px",
                                         }}
                                     >
                                         <span>Limpieza</span>
@@ -264,10 +258,10 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                                     <div
                                         className="absolute bg-yellow-200 border border-yellow-300 flex flex-col justify-center items-center text-center font-medium text-sm"
                                         style={{
-                                            top: "192px",
+                                            top: "92px",
                                             left: "38%",
                                             width: "14%",
-                                            height: "200px",
+                                            height: "100px",
                                         }}
                                     >
                                         <span>Formula</span>
@@ -276,7 +270,7 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
 
                                     {/* Proceso extrusión 2 */}
                                     <div
-                                        className="absolute top-0 h-[384px] bg-green-300 border border-green-400 flex flex-col justify-center items-center text-center font-medium text-sm"
+                                        className="absolute top-0 h-[220px] bg-green-300 border border-green-400 flex flex-col justify-center items-center text-center font-medium text-sm"
                                         style={{
                                             left: "52%",
                                             width: "18%",
@@ -289,10 +283,10 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                                     <div
                                         className="absolute bg-pink-200 border border-pink-300 flex flex-col justify-center items-center text-center font-medium text-sm"
                                         style={{
-                                            top: "336px",
+                                            top: "165px",
                                             left: "70%",
                                             width: "10%",
-                                            height: "48px",
+                                            height: "28px",
                                         }}
                                     >
                                         <span>Muestra</span>
