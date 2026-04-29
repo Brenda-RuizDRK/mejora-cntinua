@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Api\ReporteProcesoExtrusionController;
 use App\Http\Controllers\Api\SupExtrusorController;
+use App\Http\Controllers\Api\DashborthExtrudeController;
 
 
 Route::get('/', function () {
@@ -47,6 +48,9 @@ Route::put('/reporte-proceso-extrude/accion/{id}', [ReporteProcesoExtrusionContr
 Route::delete('/reporte-proceso-extrude/accion/{id}', [ReporteProcesoExtrusionController::class, 'eliminarAccion']);
 Route::get('/extruion-report', [SupExtrusorController::class, 'index'])->name('supextrude.index');
 
+
+// Rutas para el dashboard de extrusión
+Route::get('/dashboard/extrusion', [DashborthExtrudeController::class, 'dashborthExtrude'])->name('dashboard.extrusion');
 //
 Route::get('/reporte-proceso-extrude/acciones/ext54', 
     [ExtruisionController::class, 'accionesPorMaquinaEXT54']);
