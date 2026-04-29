@@ -133,7 +133,7 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                                     Producción Actual
                                 </p>
                                 <h3 className="text-3xl font-bold mt-2">
-                                    {extruder.production} ton
+                                    {extruder.production} kilos
                                 </h3>
                             </div>
 
@@ -158,17 +158,17 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                             <div className="grid grid-cols-1 gap-8">
                                 <div className="space-y-2 text-gray-700">
                                     <p>
-                                        <b>Código:</b> F-2023-X
+                                        <b>Código:</b> PGL239508-1
                                     </p>
                                     <p>
                                         <b>Tamaño de lote:</b> 1197 kg
                                     </p>
                                     <p>
-                                        <b>Tiempo de ciclo:</b> 48 min
+                                        <b>Tiempo del proceso:</b> 30 min
                                     </p>
-                                    <p>
+                                    {/* <p>
                                         <b>Presión:</b> 4 bar
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div>
                         </div>
