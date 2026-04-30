@@ -4,6 +4,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import IconButton from "@mui/material/IconButton";
 import { X, Activity, Thermometer, Gauge, Zap, Package } from "lucide-react";
+import { FaTachometerAlt } from "react-icons/fa";
 
 const statusStyles = {
     Operando: "bg-green-100 text-green-700",
@@ -130,7 +131,7 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                             <div className="rounded-xl border border-blue-200 bg-blue-50 p-5">
                                 <p className="text-sm text-blue-600 flex items-center gap-2">
                                     <Package size={16} />
-                                    Producción Actual
+                                    Producción por turno
                                 </p>
                                 <h3 className="text-3xl font-bold mt-2">
                                     {extruder.production} kilos
@@ -139,11 +140,11 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
 
                             <div className="rounded-xl border border-orange-200 bg-orange-50 p-5">
                                 <p className="text-sm text-orange-600 flex items-center gap-2">
-                                    <Thermometer size={16} />
-                                    Temperatura
+                                    <FaTachometerAlt size={16} />
+                                    Revoluciones por minuto
                                 </p>
                                 <h3 className="text-3xl font-bold mt-2">
-                                    152°C
+                                    1,200 RPM
                                 </h3>
                             </div>
                         </div>
@@ -229,8 +230,6 @@ export default function ExtruderDialog({ open, onClose, extruder }) {
                                         )}
                                     </div>
 
-                                    {/* BLOQUES */}
-                                    {/* Proceso extrusión 1 */}
                                     <div
                                         className="absolute top-0 h-[220px] bg-green-300 border border-green-400 flex flex-col justify-center items-center text-center font-medium text-sm"
                                         style={{

@@ -179,7 +179,7 @@ export default function Dashbot() {
                         <StatCard
                             title="Producción Total"
                             value="814.7"
-                            subtitle="ton"
+                            subtitle="Kilos"
                             icon={<FaChartLine />}
                             bgColor="bg-blue-100"
                             textColor="text-blue-900"
@@ -218,7 +218,7 @@ export default function Dashbot() {
                         </p>
 
                         {/* GRID */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {extruders.map((item, i) => (
                                 <ExtruderCard
                                     key={i}
