@@ -5,6 +5,7 @@ import StatCard from "@/Components/Extrusores/Dashbort/StatCard";
 import { FaIndustry, FaChartLine, FaBolt, FaBell } from "react-icons/fa";
 import ExtruderCard from "@/Components/Extrusores/Dashbort/ExtruderCard";
 import ExtruderDialog from "@/Components/Extrusores/Dashbort/ExtruderDialog";
+import { X, Activity } from "lucide-react";
 
 export default function Dashbot() {
     const [selected, setSelected] = useState(null);
@@ -152,30 +153,20 @@ export default function Dashbot() {
 
             <div className="component">
                 {/* CONTENIDO */}
-                <div className="p-3">
-                    {/* TITULO SECCION */}
+
+                {/* TITULO SECCION */}
+                <div className="flex justify-between items-center ">
                     <div className="mb-2">
-                        <h2 className="text-[25px] font-bold text-gray-800">
-                            Sistema de Producción
-                        </h2>
+                        <h1 className="text-[25px] font-bold text-gray-800 flex items-center gap-2">
+                            <Activity size={18} className="text-[#145578]" />
+                            Dashboard de Monitoreo - Extrusores
+                        </h1>
                         <p className="text-sm text-gray-500">
                             Monitoreo en tiempo real
                         </p>
                     </div>
 
-                    {/* CARDS */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[2rem]">
-                        <StatCard
-                            title="Molinos Activos"
-                            value="9"
-                            subtitle="/18"
-                            icon={<FaIndustry />}
-                            bgColor="bg-green-100"
-                            textColor="text-green-900"
-                            borderColor="border-green-200"
-                            iconColor="text-green-600"
-                        />
-
+                    <div className="flex gap-4 items-stretch">
                         <StatCard
                             title="Producción Total"
                             value="814.7"
@@ -187,54 +178,84 @@ export default function Dashbot() {
                             iconColor="text-blue-600"
                         />
 
-                        <StatCard
-                            title="Eficiencia"
-                            value="87"
-                            subtitle="%"
-                            icon={<FaBolt />}
-                            bgColor="bg-yellow-100"
-                            textColor="text-yellow-900"
-                            borderColor="border-yellow-200"
-                            iconColor="text-yellow-600"
-                        />
-
-                        <StatCard
-                            title="Alertas Activas"
-                            value="8"
-                            icon={<FaBell />}
-                            bgColor="bg-red-100"
-                            textColor="text-red-900"
-                            borderColor="border-red-200"
-                            iconColor="text-red-600"
-                        />
-                    </div>
-                    <div className="p-6">
-                        <h2 className="text-xl font-bold mb-2">
-                            Estado de Extrusores
-                        </h2>
-
-                        <p className="text-sm text-gray-500 mb-6">
-                            Click en una tarjeta para ver detalle
-                        </p>
-
-                        {/* GRID */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {extruders.map((item, i) => (
-                                <ExtruderCard
-                                    key={i}
-                                    extruder={item}
-                                    onClick={handleOpen}
+                        <div className="bg-white rounded-2xl border p-2 flex-1">
+                            <h3 className="text-xl font-bold mb-1 flex items-center gap-2">
+                                <Activity
+                                    size={18}
+                                    className="text-[#145578]"
                                 />
-                            ))}
-                        </div>
+                                Nomenglatura
+                            </h3>
 
-                        {/* DIALOG */}
-                        <ExtruderDialog
-                            open={open}
-                            onClose={() => setOpen(false)}
-                            extruder={selected}
-                        />
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-gray-700">
+                                <p className="flex gap-1 items-center text-xs">
+                                    <div className="w-3 h-3 bg-lime-600 rounded-full"></div>
+                                    Proceso extrusión
+                                </p>
+
+                                <p className="flex gap-1 items-center text-xs">
+                                    <div className="w-3 h-3 bg-[#c5b9f9] rounded-full"></div>
+                                    Procesos
+                                </p>
+
+                                <p className="flex gap-1 items-center text-xs">
+                                    <div className="w-3 h-3 bg-[#e1cfa7] rounded-full"></div>
+                                    Ajustes Producción
+                                </p>
+
+                                <p className="flex gap-1 items-center text-xs">
+                                    <div className="w-3 h-3 bg-[#96c8fa] rounded-full"></div>
+                                    Limpieza
+                                </p>
+
+                                <p className="flex gap-1 items-center text-xs">
+                                    <div className="w-3 h-3 bg-[#f8ee90] rounded-full"></div>
+                                    Formula Muestra
+                                </p>
+
+                                <p className="flex gap-1 items-center text-xs">
+                                    <div className="w-3 h-3 bg-[#fec073] rounded-full"></div>
+                                    Mantenimiento
+                                </p>
+
+                                <p className="flex gap-1 items-center text-xs">
+                                    <div className="w-3 h-3 bg-[#ff1f1f] rounded-full"></div>
+                                    Paro
+                                </p>
+
+                                <p className="flex gap-1 items-center text-xs">
+                                    <div className="w-3 h-3 bg-[#f7d3e0] rounded-full"></div>
+                                    Muestra
+                                </p>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                {/* CARDS */}
+
+                <div>
+                    <p className="text-sm text-gray-500 mb-2">
+                        Click en una tarjeta para ver detalle
+                    </p>
+
+                    {/* GRID */}
+                    <div className="flex gap-2 flex-wrap">
+                        {extruders.map((item, i) => (
+                            <ExtruderCard
+                                key={i}
+                                extruder={item}
+                                onClick={handleOpen}
+                            />
+                        ))}
+                    </div>
+
+                    {/* DIALOG */}
+                    <ExtruderDialog
+                        open={open}
+                        onClose={() => setOpen(false)}
+                        extruder={selected}
+                    />
                 </div>
             </div>
         </AuthenticatedLayout>

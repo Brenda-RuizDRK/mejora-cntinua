@@ -11,12 +11,11 @@ export default function ExtruderCard({ extruder, onClick }) {
     return (
         <div
             onClick={() => onClick(extruder)}
-            className="cursor-pointer rounded-xl border p-4 shadow-sm hover:shadow-md transition bg-white"
+            className="cursor-pointer rounded-xl border p-2 shadow-sm hover:shadow-md transition bg-white w-[265px]"
         >
             {/* HEADER */}
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-bold">{extruder.name}</h3>
-
+                <h3 className="text-[14px] font-bold">{extruder.name}</h3>
                 <span
                     className={`text-xs px-2 py-1 rounded-full border ${
                         statusStyles[extruder.status] || "bg-gray-100"
@@ -27,24 +26,21 @@ export default function ExtruderCard({ extruder, onClick }) {
             </div>
 
             {/* INFO PRINCIPAL */}
-            <div className="mt-3 space-y-1">
-                <p className="text-[12px] text-gray-500 mt-2">Producto</p>
-                <p className="font-bold text-[#164864]">{extruder.product}</p>
+            <div className="mt-1 space-y-1">
+                <p className="font-bold text-[#164864] text-[15px]">
+                    {extruder.product}
+                </p>
 
                 <div className="flex gap-2 items-center justify-between">
                     <div>
-                        <p className="text-sm text-gray-500 text-[12px]">
-                            Fórmula
-                        </p>
-                        <p className="font-semibold text-gray-800">
+                        <p className=" text-gray-500 text-[11px]">Fórmula</p>
+                        <p className="font-semibold text-gray-800 text-[14px]">
                             {extruder.formula}
                         </p>
                     </div>
                     <div>
-                        <p className="text-sm text-gray-500 text-[12px] ">
-                            Kilos
-                        </p>
-                        <p className="font-bold text-blue-600">
+                        <p className=" text-gray-500 text-[11px]">Kilos</p>
+                        <p className="font-bold text-blue-600 text-[14px]">
                             {extruder.production} Kg
                         </p>
                     </div>
@@ -52,38 +48,13 @@ export default function ExtruderCard({ extruder, onClick }) {
             </div>
             <div className="border rounded-xl overflow-hidden">
                 {/* GRID PRINCIPAL */}
-                <div className="grid grid-cols-[110px_1fr]">
-                    {/* LABELS IZQUIERDA */}
-                    <div className="bg-white border-r">
-                        {[
-                            "Proc. extrusión",
-                            "Procesos",
-                            "Ajus. Producción",
-                            "Limpieza",
-                            "F. Muestra",
-                            "Mantenimiento",
-                            "Paro",
-                            "Muestra",
-                        ].map((label, idx) => (
-                            <div
-                                key={idx}
-                                className="h-6 border-b flex items-center px-2 pt-3 text-[12px] font-medium text-gray-800 "
-                            >
-                                {label}
-                            </div>
-                        ))}
-
-                        {/* FOOTER VACÍO */}
-                        <div className="h-10 border-b"></div>
-                    </div>
-
-                    {/* AREA DE CRONOGRAMA */}
+                <div className="grid grid-cols-[310px_1fr] ">
                     <div className="relative bg-gray-50">
                         {/* Líneas horizontales */}
                         {Array.from({ length: 8 }).map((_, idx) => (
                             <div
                                 key={idx}
-                                className="h-6 border-b border-gray-300"
+                                className="h-4 border-b border-gray-300"
                             ></div>
                         ))}
 
@@ -98,7 +69,7 @@ export default function ExtruderCard({ extruder, onClick }) {
                         </div>
 
                         <div
-                            className="absolute top-0 h-[220px] bg-green-300 border border-green-400 flex flex-col justify-center items-center text-center font-medium text-sm"
+                            className="absolute top-0 h-[112px] bg-green-300 border border-green-400 flex flex-col justify-center items-center text-center font-medium text-sm"
                             style={{
                                 left: "0%",
                                 width: "28%",
@@ -113,10 +84,10 @@ export default function ExtruderCard({ extruder, onClick }) {
                         <div
                             className="absolute bg-blue-200 border border-blue-300 flex flex-col justify-center items-center text-center font-medium text-sm"
                             style={{
-                                top: "72px",
+                                top: "27px",
                                 left: "28%",
                                 width: "10%",
-                                height: "150px",
+                                height: "60px",
                             }}
                         >
                             <span className="text-[11px]">Limpieza</span>
@@ -126,10 +97,10 @@ export default function ExtruderCard({ extruder, onClick }) {
                         <div
                             className="absolute bg-yellow-200 border border-yellow-300 flex flex-col justify-center items-center text-center font-medium text-sm"
                             style={{
-                                top: "92px",
+                                top: "47px",
                                 left: "38%",
                                 width: "14%",
-                                height: "100px",
+                                height: "45px",
                             }}
                         >
                             <span className="text-[11px]">F. Muestra</span>
@@ -137,7 +108,7 @@ export default function ExtruderCard({ extruder, onClick }) {
 
                         {/* Proceso extrusión 2 */}
                         <div
-                            className="absolute top-0 h-[220px] bg-green-300 border border-green-400 flex flex-col justify-center items-center text-center font-medium text-sm"
+                            className="absolute top-0 h-[112px] bg-green-300 border border-green-400 flex flex-col justify-center items-center text-center font-medium text-sm"
                             style={{
                                 left: "52%",
                                 width: "18%",
@@ -150,17 +121,17 @@ export default function ExtruderCard({ extruder, onClick }) {
                         <div
                             className="absolute bg-pink-200 border border-pink-300 flex flex-col justify-center items-center text-center font-medium text-sm"
                             style={{
-                                top: "165px",
+                                top: "70px",
                                 left: "70%",
                                 width: "10%",
-                                height: "28px",
+                                height: "18px",
                             }}
                         >
                             <span className="text-[11px]">Muestra</span>
                         </div>
 
                         {/* FOOTER TIEMPOS */}
-                        <div className="absolute bottom-0 left-0 right-0 h-10 border-t bg-white flex text-[13px] font-medium text-gray-800">
+                        <div className="absolute bottom-0 left-0 right-0 h-10 border-t bg-white flex text-[12px] font-medium text-gray-800">
                             <div className="w-[28%] flex items-center justify-start pl-2 border-r ">
                                 2hr
                             </div>

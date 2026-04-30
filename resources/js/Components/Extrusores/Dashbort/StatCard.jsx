@@ -10,20 +10,20 @@ export default function StatCard({
 }) {
     return (
         <div
-            className={`rounded-xl shadow-sm p-5 flex justify-between items-center border ${borderColor} ${bgColor}`}
+            className={`rounded-lg shadow-sm p-3 flex justify-between items-center border w-[160px] ${borderColor} ${bgColor}`}
         >
             <div>
-                <p className="text-sm text-gray-600 font-semibold">{title}</p>
+                <p className="text-xs text-gray-500 font-medium">{title}</p>
 
-                <h2 className={`text-3xl font-bold ${textColor}`}>
+                <h2 className={`text-xl font-bold ${textColor}`}>
                     {value}
                     {subtitle && (
-                        <span className="text-base ml-1">{subtitle}</span>
+                        <span className="text-xs ml-1">{subtitle}</span>
                     )}
                 </h2>
             </div>
 
-            {icon && <div className={`text-3xl ${iconColor}`}>{icon}</div>}
+            {icon && <div className={`text-xl ${iconColor}`}>{icon}</div>}
         </div>
     );
 }
